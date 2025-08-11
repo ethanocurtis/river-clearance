@@ -1,0 +1,48 @@
+[
+  {
+    "id": "MSR-STL-ARCH-BRIDGE-DEMO",
+    "name": "Sample Fixed Bridge near St. Louis",
+    "river": "Mississippi",
+    "river_mile": 180.0,
+    "state": "MO",
+    "type": "fixed",
+    "reference_clearance_ft": 75.0,
+    "reference_type": "above_gauge_zero",
+    "controlling_gauge_id": "stl",
+    "gauge_source": "NWPS",
+    "usgs_site_no": "07010000",
+    "lat": 38.63,
+    "lon": -90.19,
+    "notes": "SAMPLE DATA ONLY \u2014 replace with real chart values"
+  },
+  {
+    "id": "ILW-LOCKPORT-RR-DEMO",
+    "name": "Sample RR Bridge on Illinois Waterway",
+    "river": "Illinois",
+    "river_mile": 291.5,
+    "state": "IL",
+    "type": "movable",
+    "reference_clearance_ft": 40.0,
+    "reference_type": "above_pool",
+    "gauge_source": "USGS",
+    "usgs_site_no": "05540500",
+    "lat": 41.59,
+    "lon": -88.06,
+    "notes": "SAMPLE DATA ONLY \u2014 replace with real chart values"
+  },
+  {
+    "id": "OHR-CINCINNATI-I71-DEMO",
+    "name": "Sample Highway Bridge near Cincinnati",
+    "river": "Ohio",
+    "river_mile": 470.5,
+    "state": "OH/KY",
+    "type": "fixed",
+    "reference_clearance_ft": 65.0,
+    "reference_type": "above_gauge_zero",
+    "gauge_source": "USGS",
+    "usgs_site_no": "03255000",
+    "lat": 39.1,
+    "lon": -84.5,
+    "notes": "SAMPLE DATA ONLY \u2014 replace with real chart values"
+  }
+]

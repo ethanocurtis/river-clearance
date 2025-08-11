@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>River Bridge Clearance (Demo)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header>
+    <h1>River Bridge Clearance <span class="badge">Demo</span></h1>
+    <p class="disclaimer">Informational only — NOT FOR NAVIGATION. Values may be delayed, incomplete, or incorrect.</p>
+  </header>
+
+  <section class="controls">
+    <div class="control">
+      <label for="riverSelect">River</label>
+      <select id="riverSelect">
+        <option value="All">All</option>
+        <option>Mississippi</option>
+        <option>Illinois</option>
+        <option>Ohio</option>
+      </select>
+    </div>
+    <div class="control">
+      <label for="airDraft">Vessel air draft (ft)</label>
+      <input id="airDraft" type="number" step="0.1" min="0" value="15" />
+      <button id="saveVessel">Save Vessel</button>
+      <select id="vesselProfiles"></select>
+    </div>
+    <div class="control">
+      <button id="refresh">Refresh Stages</button>
+    </div>
+  </section>
+
+  <section id="map"></section>
+
+  <section class="table-wrap">
+    <table id="bridgesTable">
+      <thead>
+        <tr>
+          <th>Bridge</th>
+          <th>River</th>
+          <th>Mile</th>
+          <th>Type</th>
+          <th>Ref. Clearance (ft)</th>
+          <th>Gauge Stage (ft)</th>
+          <th>Computed Clearance (ft)</th>
+          <th>Status</th>
+          <th>Gauge</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <footer>
+    <small>
+      Source data: User-provided bridge references + public NOAA/USGS stages when available.
+      This demo includes sample bridges for structure only.
+    </small>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="./app.js"></script>
+</body>
+</html>
