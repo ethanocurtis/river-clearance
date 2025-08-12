@@ -1,6 +1,6 @@
 # River Bridge Clearance (Demo Scaffold)
 
-**Not for navigation.** This is a frontend-only demo you can host on GitHub Pages. 
+**Not for navigation.** This is a frontend-only demo
 Replace `docs/data/bridges.json` with real bridge rows from USACE navigation charts and assign controlling gauges (NOAA NWPS or USGS).
 
 ## How it works
