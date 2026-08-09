@@ -14,7 +14,7 @@
 // query param a returning visitor can keep seeing old bridge data after a
 // push. Keep in sync with the ?v= on style.css/app.js in index.html and
 // CACHE_NAME in sw.js.
-const DATA_VERSION = '20260809o';
+const DATA_VERSION = '20260809p';
 
 const REFRESH_MS = 5 * 60 * 1000; // auto-refresh every 5 minutes
 const GAUGE_CACHE_KEY = 'gaugeCache';
@@ -24,11 +24,13 @@ const VESSELS_KEY = 'vessels';
 const ACTIVE_VESSEL_KEY = 'activeVesselIndex';
 const SYNC_USERNAME_KEY = 'syncUsername';
 
-// Set this once the sync API (see /server) is actually deployed somewhere,
-// e.g. 'https://your-domain.example/api'. Left blank, the whole "Sync across
-// devices" panel stays hidden — no broken buttons on the live static site
-// while there's nowhere for them to talk to.
-const SYNC_API_BASE = 'https://riverstages.ecnet.cloud/api';
+// Empty string hides the whole "Sync across devices" panel — no broken
+// buttons if there's nowhere for them to talk to. '/api' (relative, the
+// current setting) assumes this same server serves both the site and the
+// API (see /server, STATIC_DIR) — same-origin, no CORS needed. If the
+// frontend ever runs somewhere separate from the API again, change this to
+// an absolute URL instead, e.g. 'https://your-api-domain.example/api'.
+const SYNC_API_BASE = '/api';
 
 const state = {
   bridges: [],

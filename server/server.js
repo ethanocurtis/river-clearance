@@ -6,6 +6,7 @@
 // hosting, not a security boundary. Keep that in mind before storing
 // anything more sensitive than "air draft + a nickname" here.
 
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
@@ -20,6 +21,12 @@ const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '*')
   .map((s) => s.trim())
   .filter(Boolean);
 
+// Optional: serve the static docs/ site from this same process, so the
+// frontend and this API end up same-origin (no CORS involved at all).
+// Unset (default) means this container is API-only, same as before --
+// nothing changes for anyone already running it that way.
+const STATIC_DIR = process.env.STATIC_DIR || '';
+
 const app = express();
 app.disable('x-powered-by');
 app.use(express.json({ limit: '100kb' }));
@@ -28,6 +35,10 @@ app.use(
     origin: ALLOWED_ORIGINS.includes('*') ? '*' : ALLOWED_ORIGINS,
   })
 );
+
+if (STATIC_DIR) {
+  app.use(express.static(STATIC_DIR));
+}
 
 // Generous but real: this is a hobby-scale API on a small VM, not a target
 // worth hardening further given the no-password trust model already in play.
@@ -101,4 +112,5 @@ app.use((err, _req, res, _next) => {
 
 app.listen(PORT, () => {
   console.log(`river-clearance sync API listening on :${PORT}`);
+  if (STATIC_DIR) console.log(`also serving static site from ${path.resolve(STATIC_DIR)}`);
 });

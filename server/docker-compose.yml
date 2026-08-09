@@ -12,8 +12,17 @@ services:
       - PORT=8787
       - DB_PATH=/data/sync.sqlite3
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
+      # Set to /site to also serve the static docs/ folder from this same
+      # container (same-origin frontend + API, no CORS). Leave unset/empty
+      # for an API-only deployment. See "Serving the whole site from this
+      # container" in README.md.
+      - STATIC_DIR=${STATIC_DIR:-}
     volumes:
       - river-clearance-data:/data
+      # Only used if STATIC_DIR=/site above -- bind-mounts the repo's docs/
+      # folder (read-only) so `git pull` on the host updates the live site
+      # immediately, no image rebuild needed for content-only changes.
+      - ../docs:/site:ro
     # --- Nginx Proxy Manager users: uncomment both blocks below, replace
     # NPM_NETWORK_NAME with the actual network name (`docker network ls`),
     # and you can drop the `ports:` block above entirely -- NPM will reach

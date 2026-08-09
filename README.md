@@ -51,22 +51,22 @@ Mississippi River bridges, using live river stage from NOAA NWPS / USGS.
   "Cross-device sync" below. Off by default; the site works exactly as
   described above with it disabled.
 
-## Cross-device sync (optional, not deployed yet)
+## Hosting
 
-`server/` is a small Node/Express/SQLite backend so a vessel's air draft
-follows a username across devices. **Not real authentication** — a username
-alone with no password means anyone who types the same username sees the
-same data. It's a placeholder for real accounts, for use until this site has
-real hosting.
+Self-hosted on a VM behind Nginx Proxy Manager + Cloudflare — `server/` is a
+small Node/Express/SQLite process that serves both the static site (`docs/`,
+bind-mounted) and the sync API on one origin, so there's no CORS to think
+about. GitHub Pages is no longer the canonical deployment.
 
-It's not live anywhere. Until `docs/app.js`'s `SYNC_API_BASE` constant is
-pointed at a deployed instance, the "Sync across devices" panel in the
-Vessels section stays hidden and the static site behaves exactly as it does
-today — nothing about the current GitHub Pages deployment changes by this
-code existing in the repo.
+## Cross-device sync
 
-See `server/README.md` for what it does and how to deploy it (Docker or
-systemd, either bare on a VM or behind nginx with TLS).
+`server/` also handles a vessel's air draft following a username across
+devices. **Not real authentication** — a username alone with no password
+means anyone who types the same username sees the same data. It's a
+placeholder for real accounts. Don't put anything in a username or vessel
+name you wouldn't want another visitor who guesses that username to see.
+
+See `server/README.md` for what it does and how to deploy/update it.
 
 ### NWPS response shape — confirmed
 
@@ -212,10 +212,11 @@ confidently sourced — see "Data provenance" above).
 
 ## Getting started
 
-1. Enable GitHub Pages for the repository and point it at `/docs` on the
-   `main` branch.
-2. Visit `https://<your-username>.github.io/<repo-name>/`
+Live site + API are self-hosted — see `server/README.md` ("Serving the whole
+site from this container") for the actual deploy steps.
 
-No build step — it's a static site.
+`docs/` has no build step on its own either way — it's a static site that
+can still be pointed at by GitHub Pages (`/docs` on `main`) if you ever want
+a second copy running somewhere, e.g. as a fallback.
 
 _Last updated: 2026-08-09_
