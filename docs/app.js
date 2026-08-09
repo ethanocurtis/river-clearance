@@ -14,7 +14,7 @@
 // query param a returning visitor can keep seeing old bridge data after a
 // push. Keep in sync with the ?v= on style.css/app.js in index.html and
 // CACHE_NAME in sw.js.
-const DATA_VERSION = '20260809b';
+const DATA_VERSION = '20260809c';
 
 const REFRESH_MS = 5 * 60 * 1000; // auto-refresh every 5 minutes
 const GAUGE_CACHE_KEY = 'gaugeCache';
@@ -209,11 +209,17 @@ const NWPS_STAGE_EXTRACTORS = [
   (j) => j?.observed?.primary != null ? { value: Number(j.observed.primary), time: j.observed.validTime } : null,
   (j) => j?.observed?.stage != null ? { value: Number(j.observed.stage), time: j.observed.validTime } : null,
   (j) => j?.observed?.value != null ? { value: Number(j.observed.value), time: j.observed.validTime } : null,
+  // Many NOAA time-series endpoints nest the actual points one level deeper,
+  // e.g. { observed: { data: [ { primary, validTime }, ... ] } } — try that
+  // shape (and a couple of its likely field-name variants) before giving up.
+  (j) => Array.isArray(j?.observed?.data) && j.observed.data.length
+    ? { value: Number(j.observed.data[j.observed.data.length - 1].primary ?? j.observed.data[j.observed.data.length - 1].value), time: j.observed.data[j.observed.data.length - 1].validTime }
+    : null,
   (j) => Array.isArray(j?.observations) && j.observations.length
-    ? { value: Number(j.observations[j.observations.length - 1].value), time: j.observations[j.observations.length - 1].validTime }
+    ? { value: Number(j.observations[j.observations.length - 1].value ?? j.observations[j.observations.length - 1].primary), time: j.observations[j.observations.length - 1].validTime }
     : null,
   (j) => Array.isArray(j?.data) && j.data.length
-    ? { value: Number(j.data[j.data.length - 1].value), time: j.data[j.data.length - 1].validTime }
+    ? { value: Number(j.data[j.data.length - 1].value ?? j.data[j.data.length - 1].primary), time: j.data[j.data.length - 1].validTime }
     : null,
 ];
 
@@ -261,17 +267,29 @@ async function getStageUSGS(site) {
   }
 }
 
-// Returns { stageFt, source, timestamp, stale } or null (no data, live or cached).
+// Returns { stageFt, source, timestamp, gaugeId, stale } or null (no data,
+// live or cached). `gaugeId` is whichever ID actually produced the reading
+// (which can be the USGS fallback even when the bridge's primary source is
+// NWPS) — the caller displays this, not just the bridge's preferred gauge,
+// so the "Gauge" column always says where the number really came from.
 async function getStageForBridge(b) {
   const cacheKey = b.controlling_gauge_id || b.usgs_site_no || b.id;
 
   let live = null;
   if (b.gauge_source === 'NWPS' && b.controlling_gauge_id) {
     live = await memoGetStageNWPS(b.controlling_gauge_id);
-    if (!live && b.usgs_site_no) live = await getStageUSGS(b.usgs_site_no);
+    if (live) live = { ...live, gaugeId: b.controlling_gauge_id };
+    else if (b.usgs_site_no) {
+      live = await getStageUSGS(b.usgs_site_no);
+      if (live) live = { ...live, gaugeId: b.usgs_site_no };
+    }
   } else if (b.gauge_source === 'USGS' && b.usgs_site_no) {
     live = await getStageUSGS(b.usgs_site_no);
-    if (!live && b.controlling_gauge_id) live = await memoGetStageNWPS(b.controlling_gauge_id);
+    if (live) live = { ...live, gaugeId: b.usgs_site_no };
+    else if (b.controlling_gauge_id) {
+      live = await memoGetStageNWPS(b.controlling_gauge_id);
+      if (live) live = { ...live, gaugeId: b.controlling_gauge_id };
+    }
   }
 
   if (live) {
@@ -287,9 +305,16 @@ async function getStageForBridge(b) {
 
 // Same never-fabricate/stale-cache contract as getStageForBridge, for a
 // standalone route gauge (docs/data/gauges.json) that isn't tied to a
-// specific bridge.
+// specific bridge. Falls back to a USGS site if the gauge has one and NWPS
+// doesn't return data.
 async function getStageForGauge(g) {
-  const live = await memoGetStageNWPS(g.id);
+  let live = await memoGetStageNWPS(g.id);
+  if (live) live = { ...live, gaugeId: g.id };
+  else if (g.usgs_site_no) {
+    live = await getStageUSGS(g.usgs_site_no);
+    if (live) live = { ...live, gaugeId: g.usgs_site_no };
+  }
+
   if (live) {
     setCachedStage(g.id, live);
     return { ...live, stale: false };
@@ -382,7 +407,11 @@ function stageLabel(stage) {
 
 function sourceLabel(b, stage) {
   const src = stage ? stage.source : '—';
-  const id = b.controlling_gauge_id || b.usgs_site_no || '';
+  // stage.gaugeId is whichever ID actually produced the reading (may be the
+  // USGS fallback even for an NWPS-primary bridge) — prefer that over just
+  // guessing the bridge's preferred gauge, which would mislabel a fallback
+  // reading as if it came from the gauge that actually failed.
+  const id = stage?.gaugeId || b.controlling_gauge_id || b.usgs_site_no || '';
   return id ? `${src}/${id}` : src;
 }
 
