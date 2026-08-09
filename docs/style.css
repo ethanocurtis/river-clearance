@@ -1,1 +1,303 @@
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,'Helvetica Neue',Arial,'Noto Sans',sans-serif;background:#0b1220;color:#e8eef5}header{padding:16px 20px;border-bottom:1px solid #1d2740;background:#0f1830;position:sticky;top:0;z-index:10}h1{margin:0;font-size:20px;display:flex;gap:8px;align-items:center}.badge{font-size:12px;padding:2px 6px;border-radius:8px;background:#22325a}p.disclaimer{margin:6px 0 0;color:#9fb1d6}.controls{display:flex;flex-wrap:wrap;gap:16px;padding:12px 20px;border-bottom:1px solid #1d2740}.control{display:flex;gap:8px;align-items:center}label{color:#b8c7e6}input,select,button{padding:8px 10px;border-radius:10px;border:1px solid #243258;background:#101a33;color:#e8eef5}button{cursor:pointer}#map{height:48vh;border-top:1px solid #1d2740;border-bottom:1px solid #1d2740}table{width:100%;border-collapse:collapse}thead th{position:sticky;top:0;background:#0f1830;border-bottom:1px solid #1d2740;padding:10px;color:#b8c7e6}.table-wrap{max-width:100%;overflow:auto}tbody td{padding:10px;border-bottom:1px solid #1c2744}tr:hover{background:#0f1830}.status{padding:2px 8px;border-radius:999px;font-size:12px;display:inline-block}.ok{background:#113a22;color:#7be594}.marginal{background:#3a310f;color:#f3dc7b}.blocked{background:#3a1311;color:#f59b9b}footer{padding:14px 20px;color:#9fb1d6;border-top:1px solid #1d2740}
+/* Mobile-first: base styles target a phone screen. The >=800px query below
+   switches the bridge list from cards to a dense table and loosens up spacing
+   for desktop/dispatcher use. */
+
+* { box-sizing: border-box; }
+
+:root {
+  --bg: #0b1220;
+  --bg-raised: #0f1830;
+  --border: #1d2740;
+  --text: #e8eef5;
+  --text-dim: #9fb1d6;
+  --text-dimmer: #b8c7e6;
+  --ok-bg: #113a22;   --ok-fg: #7be594;
+  --marg-bg: #3a310f; --marg-fg: #f3dc7b;
+  --block-bg: #3a1311; --block-fg: #f59b9b;
+  --unk-bg: #26304f;  --unk-fg: #b8c7e6;
+  --mov-bg: #142a45;  --mov-fg: #7db8f5;
+  --need-bg: #2a1f45; --need-fg: #c8a8f5;
+  --touch: 44px;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ---------- Banners ---------- */
+
+.alert-banner {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--block-bg);
+  color: var(--block-fg);
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 15px;
+  text-align: center;
+}
+
+.offline-banner {
+  background: var(--marg-bg);
+  color: var(--marg-fg);
+  padding: 8px 16px;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ---------- Header ---------- */
+
+header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-raised);
+}
+
+h1 { margin: 0; font-size: 19px; }
+h2 { margin: 0 0 8px; font-size: 15px; color: var(--text-dimmer); }
+
+p.disclaimer {
+  margin: 8px 0 0;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ---------- Controls ---------- */
+
+.controls {
+  border-bottom: 1px solid var(--border);
+}
+
+.controls-toggle {
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  min-height: var(--touch);
+  background: var(--bg-raised);
+  color: var(--text);
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.controls-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 12px 16px 16px;
+}
+
+/* An explicit `display` on an author rule beats the UA stylesheet's
+   `[hidden] { display: none }` regardless of specificity, so the hidden
+   attribute needs its own explicit override here or it's silently ignored. */
+.controls-body[hidden] { display: none; }
+
+.control {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+label { color: var(--text-dimmer); font-size: 14px; }
+
+input, select, button {
+  padding: 10px 12px;
+  min-height: var(--touch);
+  border-radius: 10px;
+  border: 1px solid #243258;
+  background: #101a33;
+  color: var(--text);
+  font-size: 15px;
+}
+
+button { cursor: pointer; }
+button:active { transform: translateY(1px); }
+
+.last-updated { color: var(--text-dim); font-size: 12px; }
+
+/* ---------- Vessels ---------- */
+
+.vessel-panel {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.vessel-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+
+.vessel-row {
+  display: flex;
+  gap: 6px;
+}
+
+.vessel-select {
+  flex: 1;
+  text-align: left;
+}
+
+.vessel-row.active .vessel-select {
+  border-color: #4f7cf0;
+  background: #16223f;
+}
+
+.vessel-delete {
+  min-width: var(--touch);
+  color: var(--block-fg);
+}
+
+.vessel-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.vessel-form label { margin-top: 4px; }
+
+.form-error {
+  color: var(--block-fg);
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+/* ---------- Bridge list: cards (mobile default) ---------- */
+
+.list-wrap { padding: 12px 16px; }
+
+.bridge-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bridge-card {
+  border: 1px solid var(--border);
+  border-left-width: 5px;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--bg-raised);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.card-top strong { font-size: 15px; }
+
+.card-mile { color: var(--text-dim); font-size: 13px; }
+
+.card-clearance {
+  font-size: 30px;
+  font-weight: 700;
+  margin: 6px 0;
+}
+
+.card-detail { color: var(--text-dimmer); font-size: 13px; }
+
+.card-note {
+  margin-top: 6px;
+  color: var(--marg-fg);
+  font-size: 12px;
+}
+
+/* Status border tint per card */
+.bridge-card.status-ok { border-left-color: var(--ok-fg); }
+.bridge-card.status-marginal { border-left-color: var(--marg-fg); }
+.bridge-card.status-blocked { border-left-color: var(--block-fg); }
+.bridge-card.status-unknown { border-left-color: var(--unk-fg); }
+.bridge-card.status-movable { border-left-color: var(--mov-fg); }
+.bridge-card.status-needsdata { border-left-color: var(--need-fg); }
+
+/* ---------- Bridge list: table (desktop, hidden on mobile) ---------- */
+
+.table-wrap { display: none; }
+
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--border);
+  padding: 10px;
+  color: var(--text-dimmer);
+  text-align: left;
+}
+tbody td { padding: 10px; border-bottom: 1px solid #1c2744; }
+tr:hover { background: var(--bg-raised); }
+
+/* ---------- Status pill (shared by cards + table) ---------- */
+
+.status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+  white-space: nowrap;
+}
+.status.ok { background: var(--ok-bg); color: var(--ok-fg); }
+.status.marginal { background: var(--marg-bg); color: var(--marg-fg); }
+.status.blocked { background: var(--block-bg); color: var(--block-fg); }
+.status.unknown { background: var(--unk-bg); color: var(--unk-fg); }
+.status.movable { background: var(--mov-bg); color: var(--mov-fg); }
+.status.needsdata { background: var(--need-bg); color: var(--need-fg); }
+
+/* ---------- Map ---------- */
+
+.map-section { border-top: 1px solid var(--border); }
+
+.map-toggle {
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  min-height: var(--touch);
+  background: var(--bg-raised);
+  color: var(--text);
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#map { height: 50vh; border-top: 1px solid var(--border); }
+
+/* ---------- Footer ---------- */
+
+footer {
+  padding: 14px 16px 24px;
+  color: var(--text-dim);
+  font-size: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* ---------- Desktop / wide screens ---------- */
+
+@media (min-width: 800px) {
+  header, .controls-body, .list-wrap, footer { padding-left: 20px; padding-right: 20px; }
+
+  /* Controls and map are always visible on desktop; their mobile collapse
+     toggles are hidden, and a [hidden] override forces both open regardless
+     of whatever collapsed state was set while the viewport was narrow. */
+  .controls-toggle, .map-toggle { display: none; }
+  #controlsBody[hidden] { display: flex; }
+  #map[hidden] { display: block; }
+
+  .vessel-form {
+    grid-template-columns: repeat(4, 1fr) auto;
+    align-items: end;
+  }
+
+  .bridge-cards { display: none; }
+  .table-wrap { display: block; overflow: auto; }
+
+  .card-clearance { font-size: 20px; }
+}
