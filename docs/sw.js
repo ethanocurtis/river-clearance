@@ -10,14 +10,14 @@
 // it forces old cached entries (keyed by these exact URLs) to be dropped in
 // the activate handler below instead of silently lingering. Keep in sync
 // with the ?v= query params in index.html and DATA_VERSION in app.js.
-const CACHE_NAME = 'river-clearance-shell-v20260809g';
+const CACHE_NAME = 'river-clearance-shell-v20260809h';
 const SHELL_FILES = [
   './',
   './index.html',
-  './style.css?v=20260809g',
-  './app.js?v=20260809g',
-  './data/bridges.json?v=20260809g',
-  './data/gauges.json?v=20260809g',
+  './style.css?v=20260809h',
+  './app.js?v=20260809h',
+  './data/bridges.json?v=20260809h',
+  './data/gauges.json?v=20260809h',
 ];
 
 self.addEventListener('install', (event) => {
