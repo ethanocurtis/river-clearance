@@ -10,8 +10,10 @@ Mississippi River bridges, using live river stage from NOAA NWPS / USGS.
 
 ## How it works
 
-- Loads `docs/data/bridges.json` — a seed set of real bridges from Dubuque,
-  IA to St. Louis, MO.
+- Loads `docs/data/bridges.json` — a seed set of 16 real bridges from
+  Dubuque, IA to St. Louis, MO, including the full St. Louis-area cluster
+  (Eads, MacArthur, Poplar Street, Martin Luther King, Stan Musial, McKinley,
+  Merchants, and the Chain of Rocks Canal Bridge).
 - For each bridge, fetches current stage from its assigned NOAA NWPS gauge
   (falling back to a USGS gauge if given, or vice versa).
 - Computes `actual_clearance = reference_clearance_ft - stage_ft (+ adjustment_ft)`
