@@ -10,10 +10,10 @@ Mississippi River bridges, using live river stage from NOAA NWPS / USGS.
 
 ## How it works
 
-- Loads `docs/data/bridges.json` — a seed set of 16 real bridges from
-  Dubuque, IA to St. Louis, MO, including the full St. Louis-area cluster
-  (Eads, MacArthur, Poplar Street, Martin Luther King, Stan Musial, McKinley,
-  Merchants, and the Chain of Rocks Canal Bridge).
+- Loads `docs/data/bridges.json` — 42 real bridges spanning the full route
+  from St. Louis, MO to St. Paul, MN: every highway and rail crossing found
+  by a systematic city-by-city sweep, not just a handful of samples. Fixed
+  spans, swing/lift rail bridges, and everything in between.
 - For each bridge, fetches current stage from its assigned NOAA NWPS gauge
   (falling back to a USGS gauge if given, or vice versa).
 - Computes `actual_clearance = reference_clearance_ft - stage_ft (+ adjustment_ft)`
@@ -36,7 +36,7 @@ Mississippi River bridges, using live river stage from NOAA NWPS / USGS.
   bridge list available if the boat loses signal; the offline banner makes
   clear when you're looking at cached data.
 - Loads `docs/data/gauges.json` — every real NOAA NWPS gauge found from St.
-  Paul down to St. Louis (29 gauges), not just the ones assigned to a
+  Paul down to St. Louis (32 gauges), not just the ones assigned to a
   bridge. Shown in its own collapsible "NOAA Gauges Along the Route" list
   and as plain blue dots on the map (bridges are colored circles matching
   their status). This is reference context for the whole stretch; it does
@@ -86,24 +86,50 @@ reference articles) instead. Each bridge entry carries:
 `reference_clearance_ft` against the current USACE Upper Mississippi River
 Navigation Charts or the bridge clearance calculator above.**
 
-All 29 NOAA NWPS gauge IDs found while building this are in
-`docs/data/gauges.json` (St. Paul down to St. Louis, one roughly every
-lock & dam) — most aren't wired to a specific bridge yet, which is exactly
+A few entries need more than the usual verify-before-use caution and are
+called out explicitly in their `source_note`/`notes`:
+
+- **Bayview, Quincy Memorial, and Quincy Rail bridges** all returned the
+  identical 63 ft figure from search — plausible (same permitted channel
+  clearance) but also consistent with a search-summarization mix-up across
+  three closely-spaced, similarly-templated Wikipedia pages. Treat these
+  three as less certain than the rest.
+- **Champ Clark Bridge** (Louisiana, MO) has `reference_clearance_ft: null`
+  on purpose — the only figure found ("405 ft of navigation clearance") is
+  a *horizontal* channel-width spec from the Coast Guard permit, not
+  vertical clearance. Using it as vertical would be a serious error.
+- **Marquette–Joliet Bridge** also has `reference_clearance_ft: null` — a
+  found figure (28.58 ft) looked implausibly low for a fixed highway span
+  over the main channel and wasn't used.
+- **St. Paul Union Pacific Vertical-lift Rail Bridge** — only the *raised*
+  clearance (72 ft) was found; the down/closed clearance, the one that
+  actually matters day-to-day, is unknown.
+
+Every NOAA NWPS gauge ID found while building this is in
+`docs/data/gauges.json` (32 gauges, St. Paul down to St. Louis, roughly one
+per lock & dam) — most aren't wired to a specific bridge, which is exactly
 what makes them useful for extending bridge coverage or filling gaps:
 `stpm5` (St. Paul), `sspm5` (South St. Paul), `redm5`/`rdwm5` (Red Wing),
 `lkcm5` (Lake City), `wnam5`/`widm5`/`mscm5` (Winona area), `trew3`
 (Trempealeau), `lcrm5` (La Crescent), `lacw3` (La Crosse), `genw3` (Genoa,
-L&D 8), `gtti4` (Guttenberg, L&D 10), `dldi4`/`dbqi4` (Dubuque, L&D 11),
+L&D 8), `gtti4` (Guttenberg, L&D 10), `mcgi4` (McGregor / Prairie du
+Chien), `dldi4`/`dbqi4` (Dubuque, L&D 11), `leci4` (Le Claire, L&D 14),
 `rcki2` (Rock Island, L&D 15), `musi4` (Muscatine, L&D 16), `nboi2` (New
 Boston, L&D 17), `brli4` (Burlington), `eoki4` (Keokuk, L&D 19), `uini2`
 (Quincy), `qldi2` (Quincy, L&D 21), `canm7` (Canton, L&D 20), `hnnm7`
 (Hannibal), `lusm7` (Louisiana), `clkm7` (Clarksville, L&D 24), `cagm7`
 (Winfield, L&D 25), `alni2` (Alton — Melvin Price Lock and Dam, L&D 26),
-`eadm7` (St. Louis). Their lat/lon are approximate (the town's location,
-not the exact gauge structure) — fine for a map pin, not precise enough
-for anything more. River miles for lock-and-dam-named gauges use the
-lock's commonly-cited USACE milepost; the rest are left `null` rather than
-guessed.
+`eadm7` (St. Louis), `hstm5` (Hastings, L&D 2). Their lat/lon are
+approximate (the town's location, not the exact gauge structure) — fine
+for a map pin, not precise enough for anything more. River miles for
+lock-and-dam-named gauges use the lock's commonly-cited USACE milepost;
+the rest are left `null` rather than guessed.
+
+Bridge coordinates, by contrast, are sourced from each bridge's Wikipedia
+infobox (found via search) rather than estimated — a user caught two
+visibly mislocated pins (McKinley and Merchants bridges, ~1-1.5km off)
+which prompted re-sourcing every bridge's lat/lon precisely; see git log
+for that pass if a pin ever looks wrong again.
 
 ## Adding or correcting a bridge
 
