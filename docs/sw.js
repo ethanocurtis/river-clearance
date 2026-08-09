@@ -6,13 +6,17 @@
 // same-origin shell files avoids ever silently serving stale API data as if
 // it were fresh.
 
-const CACHE_NAME = 'river-clearance-shell-v1';
+// Bump the version suffix on any deploy that changes shell/data content —
+// it forces old cached entries (keyed by these exact URLs) to be dropped in
+// the activate handler below instead of silently lingering. Keep in sync
+// with the ?v= query params in index.html and DATA_VERSION in app.js.
+const CACHE_NAME = 'river-clearance-shell-v20260809';
 const SHELL_FILES = [
   './',
   './index.html',
-  './style.css',
-  './app.js',
-  './data/bridges.json',
+  './style.css?v=20260809',
+  './app.js?v=20260809',
+  './data/bridges.json?v=20260809',
 ];
 
 self.addEventListener('install', (event) => {

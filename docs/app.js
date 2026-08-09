@@ -9,6 +9,13 @@
 //   3. Movable bridges and bridges with no known reference clearance get their own
 //      status instead of being forced through OK/Marginal/Blocked math.
 
+// Bump this on any deploy that changes bridges.json — browsers (and CDN
+// edges) cache same-URL requests by filename, so without a cache-busting
+// query param a returning visitor can keep seeing old bridge data after a
+// push. Keep in sync with the ?v= on style.css/app.js in index.html and
+// CACHE_NAME in sw.js.
+const DATA_VERSION = '20260809';
+
 const REFRESH_MS = 5 * 60 * 1000; // auto-refresh every 5 minutes
 const GAUGE_CACHE_KEY = 'gaugeCache';
 const BRIDGES_CACHE_KEY = 'bridgesCache';
@@ -444,7 +451,7 @@ async function render() {
 
 async function loadBridges() {
   const banner = $('offlineBanner');
-  const json = await fetchJSON('./data/bridges.json');
+  const json = await fetchJSON(`./data/bridges.json?v=${DATA_VERSION}`);
   if (Array.isArray(json)) {
     cacheBridges(json);
     banner.hidden = true;
