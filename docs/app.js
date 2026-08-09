@@ -14,7 +14,7 @@
 // query param a returning visitor can keep seeing old bridge data after a
 // push. Keep in sync with the ?v= on style.css/app.js in index.html and
 // CACHE_NAME in sw.js.
-const DATA_VERSION = '20260809n';
+const DATA_VERSION = '20260809o';
 
 const REFRESH_MS = 5 * 60 * 1000; // auto-refresh every 5 minutes
 const GAUGE_CACHE_KEY = 'gaugeCache';
@@ -28,7 +28,7 @@ const SYNC_USERNAME_KEY = 'syncUsername';
 // e.g. 'https://your-domain.example/api'. Left blank, the whole "Sync across
 // devices" panel stays hidden — no broken buttons on the live static site
 // while there's nowhere for them to talk to.
-const SYNC_API_BASE = '';
+const SYNC_API_BASE = 'https://riverstages.ecnet.cloud/api';
 
 const state = {
   bridges: [],
