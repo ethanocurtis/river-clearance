@@ -340,6 +340,25 @@ footer {
   border-top: 1px solid var(--border);
 }
 
+.report-issue-btn {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 14px;
+  min-height: var(--touch);
+  line-height: calc(var(--touch) - 20px);
+  border-radius: 10px;
+  border: 1px solid #243258;
+  background: #101a33;
+  color: var(--text-dimmer);
+  font-size: 13px;
+  text-decoration: none;
+}
+.report-issue-btn:hover,
+.report-issue-btn:focus-visible {
+  color: var(--text);
+  border-color: #3a4d80;
+}
+
 /* ---------- Desktop / wide screens ---------- */
 
 @media (min-width: 800px) {
