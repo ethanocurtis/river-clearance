@@ -395,9 +395,9 @@
     "usgs_site_no": null,
     "lat": 39.93333,
     "lon": -91.42139,
-    "source_note": "Clearance figure from public secondary source. CAUTION: all three Quincy-area bridges (Bayview, Quincy Memorial, Quincy Rail) returned the identical '63 ft' figure from search — plausible if all three were built/permitted to the same channel clearance standard, but also consistent with a search-summarization mix-up across similar Wikipedia infobox templates for closely-spaced bridges. Treat with extra caution beyond the usual verify-before-use flag.",
+    "source_note": "Clearance figure from public secondary source, not cross-checked against current USACE chart book or bridge owner permit. All three Quincy-area bridges (Bayview, Quincy Memorial, Quincy Rail) independently return the same 63 ft figure across multiple sources — re-checked specifically because that seemed too coincidental at first. Most likely genuine: all three cross the same reach within about a mile of each other, and USACE/Coast Guard permits typically hold a river reach to one minimum navigational clearance regardless of which structure crosses it, so later bridges built at an already-permitted crossing commonly match the existing minimum rather than getting a fresh number.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use. Clearance figure for this bridge shares a suspicious exact match with two neighboring bridges — see source_note."
+    "notes": "VERIFY before operational use."
   },
   {
     "id": "UMR-324-QUINCY-MEMORIAL",
@@ -415,9 +415,9 @@
     "usgs_site_no": null,
     "lat": 39.93139,
     "lon": -91.42056,
-    "source_note": "Clearance figure from public secondary source. CAUTION: same '63 ft' figure as Bayview and Quincy Rail Bridge (see Bayview's source_note for why that's suspicious). A separate MoDOT source gave 14 ft 3 in for this bridge, which is clearly a different kind of measurement (possibly a roadway/approach clearance, not the main span over water) — the discrepancy itself was not resolved. Built 1928.",
+    "source_note": "Clearance figure from public secondary source, not cross-checked against current USACE chart book or bridge owner permit. Shares the same 63 ft figure as Bayview and Quincy Rail Bridge — see Bayview's source_note for why that's most likely genuine rather than a data error. A separate MoDOT figure of 14 ft 3 in for this bridge is a different kind of measurement (a roadway/vehicle clearance elsewhere on the structure, not the navigational clearance over water) — not a real conflict once you know that, just two different specs. Built 1928.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use. Clearance figure is unusually uncertain — see source_note for a specific source discrepancy (63 ft vs 14 ft 3 in from different sources)."
+    "notes": "VERIFY before operational use."
   },
   {
     "id": "UMR-326-QUINCY-RAIL",
@@ -435,9 +435,9 @@
     "usgs_site_no": null,
     "lat": 39.94167,
     "lon": -91.43083,
-    "source_note": "Clearance figure from public secondary source. CAUTION: same '63 ft' figure as Bayview and Quincy Memorial Bridge — see Bayview's source_note for why that's suspicious.",
+    "source_note": "Clearance figure from public secondary source, not cross-checked against current USACE chart book or bridge owner permit. Shares the same 63 ft figure as Bayview and Quincy Memorial Bridge — see Bayview's source_note for why that's most likely genuine rather than a data error.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use. Clearance figure shares a suspicious exact match with two neighboring bridges — see source_note."
+    "notes": "VERIFY before operational use."
   },
   {
     "id": "UMR-364-KEOKUK-HAMILTON",

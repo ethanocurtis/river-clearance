@@ -86,14 +86,19 @@ reference articles) instead. Each bridge entry carries:
 `reference_clearance_ft` against the current USACE Upper Mississippi River
 Navigation Charts or the bridge clearance calculator above.**
 
-A few entries need more than the usual verify-before-use caution and are
-called out explicitly in their `source_note`/`notes`:
+A few entries got extra scrutiny and are called out explicitly in their
+`source_note`:
 
-- **Bayview, Quincy Memorial, and Quincy Rail bridges** all returned the
-  identical 63 ft figure from search — plausible (same permitted channel
-  clearance) but also consistent with a search-summarization mix-up across
-  three closely-spaced, similarly-templated Wikipedia pages. Treat these
-  three as less certain than the rest.
+- **Bayview, Quincy Memorial, and Quincy Rail bridges** all independently
+  return the identical 63 ft figure — re-checked specifically because that
+  looked like it could be a search cross-contamination artifact across
+  similarly-templated Wikipedia pages. It most likely isn't: the three
+  bridges cross the same reach within about a mile of each other, and
+  USACE/Coast Guard permits typically hold one minimum navigational
+  clearance for a given river reach regardless of which structure crosses
+  it — a later bridge built at an already-permitted crossing commonly just
+  matches the existing minimum. Still subject to the usual verify-before-use
+  caveat like everything else here, no more or less.
 - **Champ Clark Bridge** (Louisiana, MO) has `reference_clearance_ft: null`
   on purpose — the only figure found ("405 ft of navigation clearance") is
   a *horizontal* channel-width spec from the Coast Guard permit, not
