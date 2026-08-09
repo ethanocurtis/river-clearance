@@ -14,7 +14,7 @@
 // query param a returning visitor can keep seeing old bridge data after a
 // push. Keep in sync with the ?v= on style.css/app.js in index.html and
 // CACHE_NAME in sw.js.
-const DATA_VERSION = '20260809m';
+const DATA_VERSION = '20260809n';
 
 const REFRESH_MS = 5 * 60 * 1000; // auto-refresh every 5 minutes
 const GAUGE_CACHE_KEY = 'gaugeCache';
@@ -22,6 +22,13 @@ const BRIDGES_CACHE_KEY = 'bridgesCache';
 const GAUGES_LIST_CACHE_KEY = 'gaugesListCache';
 const VESSELS_KEY = 'vessels';
 const ACTIVE_VESSEL_KEY = 'activeVesselIndex';
+const SYNC_USERNAME_KEY = 'syncUsername';
+
+// Set this once the sync API (see /server) is actually deployed somewhere,
+// e.g. 'https://your-domain.example/api'. Left blank, the whole "Sync across
+// devices" panel stays hidden — no broken buttons on the live static site
+// while there's nowhere for them to talk to.
+const SYNC_API_BASE = '';
 
 const state = {
   bridges: [],
@@ -180,6 +187,109 @@ function showFormError(msg) {
   if (!el) return;
   el.textContent = msg || '';
   el.hidden = !msg;
+}
+
+// ---------------------------------------------------------------------------
+// Sync across devices (username only, no password — see /server/README.md)
+// ---------------------------------------------------------------------------
+
+function initSyncPanel() {
+  if (!SYNC_API_BASE) return; // panel stays hidden, nothing else to wire up
+  $('syncPanel').hidden = false;
+  const saved = localStorage.getItem(SYNC_USERNAME_KEY);
+  if (saved) $('syncUsername').value = saved;
+
+  $('syncSave').onclick = syncSave;
+  $('syncLoad').onclick = syncLoad;
+  $('syncForget').onclick = syncForget;
+}
+
+function showSyncStatus(msg, isError = false) {
+  const el = $('syncStatus');
+  el.textContent = msg;
+  el.hidden = !msg;
+  el.classList.toggle('sync-status-error', isError);
+}
+
+function currentSyncUsername() {
+  const raw = $('syncUsername').value.trim().toLowerCase();
+  if (!/^[a-z0-9_-]{3,32}$/.test(raw)) {
+    showSyncStatus('Username must be 3-32 characters: lowercase letters, numbers, - or _.', true);
+    return null;
+  }
+  return raw;
+}
+
+async function syncSave() {
+  const username = currentSyncUsername();
+  if (!username) return;
+  showSyncStatus('Saving…');
+  try {
+    const res = await fetch(`${SYNC_API_BASE}/sync/${encodeURIComponent(username)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vessels: state.vessels, activeVesselIndex: state.activeVesselIndex }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || `HTTP ${res.status}`);
+    }
+    localStorage.setItem(SYNC_USERNAME_KEY, username);
+    showSyncStatus(`Saved as "${username}". Load this same username on another device to get these vessels there.`);
+  } catch (e) {
+    showSyncStatus(`Couldn't save: ${e.message}`, true);
+  }
+}
+
+async function syncLoad() {
+  const username = currentSyncUsername();
+  if (!username) return;
+  showSyncStatus('Loading…');
+  try {
+    const res = await fetch(`${SYNC_API_BASE}/sync/${encodeURIComponent(username)}`);
+    if (res.status === 404) {
+      showSyncStatus(`No saved data for "${username}" yet — use Save to cloud here first.`);
+      return;
+    }
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || `HTTP ${res.status}`);
+    }
+    const record = await res.json();
+    const vessels = record?.data?.vessels;
+    if (!Array.isArray(vessels) || vessels.length === 0) {
+      showSyncStatus(`No vessels found for "${username}".`, true);
+      return;
+    }
+    state.vessels = vessels;
+    state.activeVesselIndex = Number.isInteger(record.data.activeVesselIndex) ? record.data.activeVesselIndex : 0;
+    if (state.activeVesselIndex >= state.vessels.length) state.activeVesselIndex = 0;
+    saveVessels(state.vessels);
+    saveActiveVesselIndex(state.activeVesselIndex);
+    localStorage.setItem(SYNC_USERNAME_KEY, username);
+    renderVesselList();
+    await render();
+    showSyncStatus(`Loaded ${vessels.length} vessel${vessels.length > 1 ? 's' : ''} for "${username}".`);
+  } catch (e) {
+    showSyncStatus(`Couldn't load: ${e.message}`, true);
+  }
+}
+
+async function syncForget() {
+  const username = currentSyncUsername();
+  if (!username) return;
+  showSyncStatus('Removing…');
+  try {
+    const res = await fetch(`${SYNC_API_BASE}/sync/${encodeURIComponent(username)}`, { method: 'DELETE' });
+    if (!res.ok && res.status !== 404) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || `HTTP ${res.status}`);
+    }
+    if (localStorage.getItem(SYNC_USERNAME_KEY) === username) localStorage.removeItem(SYNC_USERNAME_KEY);
+    showSyncStatus(`"${username}" removed from the cloud. Your local vessels here are untouched.`);
+  } catch (e) {
+    showSyncStatus(`Couldn't remove: ${e.message}`, true);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -682,6 +792,7 @@ async function init() {
   state.activeVesselIndex = loadActiveVesselIndex();
   ensureDefaultVessel();
   renderVesselList();
+  initSyncPanel();
 
   wireControls();
   registerServiceWorker();

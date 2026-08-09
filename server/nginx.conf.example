@@ -1,0 +1,42 @@
+# Example reverse-proxy config: fronts the Node API with TLS, and (optionally)
+# serves the static docs/ site from the same domain so the frontend and API
+# end up same-origin (no CORS needed at all in that case -- just point
+# SYNC_API_BASE in docs/app.js at "/api" and drop the /api prefix stripping
+# below, or keep it and point at "" + fetch("/api/...") as already written).
+#
+# Get a cert first, e.g.: sudo certbot --nginx -d your-domain.example
+
+server {
+    listen 80;
+    server_name your-domain.example;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name your-domain.example;
+
+    ssl_certificate     /etc/letsencrypt/live/your-domain.example/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/your-domain.example/privkey.pem;
+
+    # Static site (skip this block if you're keeping the frontend on GitHub
+    # Pages and only using this VM for the API).
+    root /opt/river-clearance/docs;
+    index index.html;
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # Sync API
+    location /api/ {
+        proxy_pass http://127.0.0.1:8787/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /healthz {
+        proxy_pass http://127.0.0.1:8787/healthz;
+    }
+}

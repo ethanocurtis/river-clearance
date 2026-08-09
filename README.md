@@ -47,6 +47,26 @@ Mississippi River bridges, using live river stage from NOAA NWPS / USGS.
   Dubuque, La Crosse, St. Louis appear both as a bridge's gauge and as their
   own row in the gauges list) only fetch that gauge once per refresh —
   `app.js` memoizes in-flight NWPS requests for the duration of a render.
+- Optional cross-device vessel sync via a username (no password) — see
+  "Cross-device sync" below. Off by default; the site works exactly as
+  described above with it disabled.
+
+## Cross-device sync (optional, not deployed yet)
+
+`server/` is a small Node/Express/SQLite backend so a vessel's air draft
+follows a username across devices. **Not real authentication** — a username
+alone with no password means anyone who types the same username sees the
+same data. It's a placeholder for real accounts, for use until this site has
+real hosting.
+
+It's not live anywhere. Until `docs/app.js`'s `SYNC_API_BASE` constant is
+pointed at a deployed instance, the "Sync across devices" panel in the
+Vessels section stays hidden and the static site behaves exactly as it does
+today — nothing about the current GitHub Pages deployment changes by this
+code existing in the repo.
+
+See `server/README.md` for what it does and how to deploy it (Docker or
+systemd, either bare on a VM or behind nginx with TLS).
 
 ### NWPS response shape — confirmed
 

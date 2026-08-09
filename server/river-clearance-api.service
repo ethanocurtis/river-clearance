@@ -1,0 +1,32 @@
+# systemd unit for running the sync API directly with Node (no Docker).
+#
+# Install:
+#   sudo cp river-clearance-api.service /etc/systemd/system/
+#   sudo mkdir -p /var/lib/river-clearance && sudo chown www-data:www-data /var/lib/river-clearance
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now river-clearance-api
+#
+# Adjust User/Group, WorkingDirectory, and the .env path for your setup.
+# journalctl -u river-clearance-api -f   to follow logs.
+
+[Unit]
+Description=River Bridge Clearance sync API
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/river-clearance/server
+EnvironmentFile=/opt/river-clearance/server/.env
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5
+# Basic hardening -- fine to remove/adjust if it fights your setup.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/river-clearance
+
+[Install]
+WantedBy=multi-user.target

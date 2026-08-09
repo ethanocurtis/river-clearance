@@ -165,6 +165,50 @@ button:active { transform: translateY(1px); }
   margin: 4px 0 0;
 }
 
+.sync-panel {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+
+.sync-panel h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: var(--text-dimmer);
+}
+
+.sync-note {
+  margin: 0 0 10px;
+  color: var(--text-dim);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.sync-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.sync-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sync-forget {
+  color: var(--marg-fg);
+}
+
+.sync-status {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--ok-fg);
+}
+
+.sync-status-error { color: var(--block-fg); }
+
 /* ---------- Bridge list: cards (mobile default) ---------- */
 
 .list-wrap { padding: 12px 16px; }

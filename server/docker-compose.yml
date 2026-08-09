@@ -1,0 +1,15 @@
+services:
+  river-clearance-api:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8787:8787" # bind to localhost; let nginx (or your reverse proxy) expose it publicly with TLS
+    environment:
+      - PORT=8787
+      - DB_PATH=/data/sync.sqlite3
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
+    volumes:
+      - river-clearance-data:/data
+
+volumes:
+  river-clearance-data:
