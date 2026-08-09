@@ -195,10 +195,16 @@ button:active { transform: translateY(1px); }
 
 .card-mile { color: var(--text-dim); font-size: 13px; }
 
+.card-margin-label {
+  color: var(--text-dim);
+  font-size: 12px;
+  margin-top: 8px;
+}
+
 .card-clearance {
   font-size: 30px;
   font-weight: 700;
-  margin: 6px 0;
+  margin: 2px 0 6px;
 }
 
 .card-detail { color: var(--text-dimmer); font-size: 13px; }
@@ -209,10 +215,14 @@ button:active { transform: translateY(1px); }
   font-size: 12px;
 }
 
-/* Status border tint per card */
+/* Status border tint per card, echoed on the big margin number itself so a
+   blocked bridge reads red at a glance without having to read the pill. */
 .bridge-card.status-ok { border-left-color: var(--ok-fg); }
+.bridge-card.status-ok .card-clearance { color: var(--ok-fg); }
 .bridge-card.status-marginal { border-left-color: var(--marg-fg); }
+.bridge-card.status-marginal .card-clearance { color: var(--marg-fg); }
 .bridge-card.status-blocked { border-left-color: var(--block-fg); }
+.bridge-card.status-blocked .card-clearance { color: var(--block-fg); }
 .bridge-card.status-unknown { border-left-color: var(--unk-fg); }
 .bridge-card.status-movable { border-left-color: var(--mov-fg); }
 .bridge-card.status-needsdata { border-left-color: var(--need-fg); }

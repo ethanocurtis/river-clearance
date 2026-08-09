@@ -14,7 +14,7 @@
 // query param a returning visitor can keep seeing old bridge data after a
 // push. Keep in sync with the ?v= on style.css/app.js in index.html and
 // CACHE_NAME in sw.js.
-const DATA_VERSION = '20260809c';
+const DATA_VERSION = '20260809d';
 
 const REFRESH_MS = 5 * 60 * 1000; // auto-refresh every 5 minutes
 const GAUGE_CACHE_KEY = 'gaugeCache';
@@ -421,7 +421,12 @@ async function computeRows(bridges, vessel) {
     const stage = await getStageForBridge(b);
     const clearance = (stage && b.reference_clearance_ft != null) ? computeClearance(b, stage.stageFt) : null;
     const st = statusFor(b, clearance, vessel.airDraftFt, vessel.marginFt ?? 2);
-    rows.push({ bridge: b, stage, clearance, status: st });
+    // How much room your specific vessel has: bridge clearance minus your air
+    // draft. Negative means the bridge is currently too low for you. This is
+    // the number that actually answers "can I get under this" — the raw
+    // `clearance` above is just the bridge's own number, same for everyone.
+    const margin = clearance != null ? clearance - vessel.airDraftFt : null;
+    rows.push({ bridge: b, stage, clearance, margin, status: st, vessel });
   }
   return rows;
 }
@@ -443,27 +448,29 @@ function renderAlertBanner(rows) {
     banner.textContent = '';
     return;
   }
-  const worst = blocked.reduce((a, b) => (a.clearance < b.clearance ? a : b));
+  const worst = blocked.reduce((a, b) => (a.margin < b.margin ? a : b));
   banner.hidden = false;
-  banner.textContent = `⚠ ${blocked.length} bridge${blocked.length > 1 ? 's' : ''} below your air draft — worst: ${worst.bridge.name} (${fmt(worst.clearance)} ft clearance)`;
+  banner.textContent = `⚠ ${blocked.length} bridge${blocked.length > 1 ? 's' : ''} below your air draft — worst: ${worst.bridge.name} (${fmt(Math.abs(worst.margin))} ft too low for ${worst.vessel.name})`;
 }
 
 function renderCards(rows) {
   const wrap = $('bridgeCards');
   wrap.innerHTML = '';
   for (const r of rows) {
-    const { bridge: b, stage, clearance, status } = r;
+    const { bridge: b, stage, clearance, margin, status, vessel } = r;
     const card = document.createElement('div');
     card.className = `bridge-card status-${status.cls}`;
+    const hasMargin = margin != null;
     card.innerHTML = `
       <div class="card-top">
         <strong>${b.name}</strong>
         <span class="status ${status.cls}">${status.label}</span>
       </div>
       <div class="card-mile">${b.river} · Mile ${fmt(b.river_mile, 1)} · ${b.type}</div>
-      <div class="card-clearance">${clearance != null ? `${fmt(clearance)} ft` : '—'}</div>
+      <div class="card-margin-label">${hasMargin ? `Margin for ${vessel.name} (${fmt(vessel.airDraftFt)}ft air draft)` : 'Margin for your vessel'}</div>
+      <div class="card-clearance">${hasMargin ? `${fmt(margin)} ft` : '—'}</div>
       <div class="card-detail">
-        Ref ${b.reference_clearance_ft != null ? fmt(b.reference_clearance_ft) + ' ft' : '—'} · Stage ${stageLabel(stage)} · ${sourceLabel(b, stage)}
+        Bridge clearance ${clearance != null ? fmt(clearance) + ' ft' : '—'} · Ref ${b.reference_clearance_ft != null ? fmt(b.reference_clearance_ft) + ' ft' : '—'} · Stage ${stageLabel(stage)} · ${sourceLabel(b, stage)}
       </div>
       ${b.notes ? `<div class="card-note">${b.notes}</div>` : ''}
     `;
@@ -491,7 +498,7 @@ function renderTable(rows) {
   const tbody = document.querySelector('#bridgesTable tbody');
   tbody.innerHTML = '';
   for (const r of rows) {
-    const { bridge: b, stage, clearance, status } = r;
+    const { bridge: b, stage, clearance, margin, status } = r;
     const tr = document.createElement('tr');
     const cells = [
       `<strong>${b.name}</strong>`,
@@ -501,6 +508,7 @@ function renderTable(rows) {
       b.reference_clearance_ft != null ? fmt(b.reference_clearance_ft) : '—',
       stageLabel(stage),
       clearance != null ? fmt(clearance) : '—',
+      margin != null ? `<strong>${fmt(margin)}</strong>` : '—',
       `<span class="status ${status.cls}">${status.label}</span>`,
       sourceLabel(b, stage),
     ];
@@ -517,14 +525,15 @@ function renderMarkers(rows) {
   clearMarkers();
   if (!state.map) return;
   for (const r of rows) {
-    const { bridge: b, stage, clearance, status } = r;
+    const { bridge: b, stage, clearance, margin, status, vessel } = r;
     if (b.lat == null || b.lon == null) continue;
     const popup = `
       <strong>${b.name}</strong><br/>
       Mile ${fmt(b.river_mile, 1)} (${b.river})<br/>
       Ref: ${b.reference_clearance_ft != null ? fmt(b.reference_clearance_ft) + ' ft' : '—'}<br/>
       Stage: ${stageLabel(stage)}<br/>
-      <em>Clearance now:</em> ${clearance != null ? fmt(clearance) + ' ft' : '—'} — <span class="status ${status.cls}">${status.label}</span>
+      Bridge clearance: ${clearance != null ? fmt(clearance) + ' ft' : '—'}<br/>
+      <em>Margin for ${vessel ? vessel.name : 'your vessel'}:</em> ${margin != null ? fmt(margin) + ' ft' : '—'} — <span class="status ${status.cls}">${status.label}</span>
     `;
     const marker = L.circleMarker([b.lat, b.lon], {
       radius: 8,

@@ -14,9 +14,15 @@ Mississippi River bridges, using live river stage from NOAA NWPS / USGS.
   IA to St. Louis, MO.
 - For each bridge, fetches current stage from its assigned NOAA NWPS gauge
   (falling back to a USGS gauge if given, or vice versa).
-- Computes `actual_clearance = reference_clearance_ft - stage_ft (+ adjustment_ft)`.
-- Compares against a vessel's air draft **plus a safety margin** (both
-  configurable, saved in `localStorage`).
+- Computes `actual_clearance = reference_clearance_ft - stage_ft (+ adjustment_ft)`
+  — the bridge's own number, same for every vessel.
+- Then computes **your margin** = `actual_clearance - your_air_draft` — how
+  much room *your* vessel actually has (negative means it won't fit right
+  now). This is the big number shown on each card/row, not the raw bridge
+  clearance, since that's what actually answers "can I get under this."
+  OK/Marginal/Blocked status additionally factors in a **safety margin**
+  buffer (both air draft and safety margin configurable per vessel, saved in
+  `localStorage`).
 - If live data can't be fetched, shows the last cached reading labeled
   `(stale)` with when it was last good — and if there's no cached reading
   either, shows **"Stage unavailable"**. It never fabricates a stage or
