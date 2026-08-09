@@ -46,24 +46,25 @@ Mississippi River bridges, using live river stage from NOAA NWPS / USGS.
   own row in the gauges list) only fetch that gauge once per refresh —
   `app.js` memoizes in-flight NWPS requests for the duration of a render.
 
-### Known issue: the live NWPS API
+### NWPS response shape — confirmed
 
-This project was built in a sandboxed environment whose network blocked
-`api.water.noaa.gov`, so the NWPS response parsing in `app.js`
-(`NWPS_STAGE_EXTRACTORS`) was written from documentation/best guesses, never
-against a real response. In production it appears to be failing for most
-gauges. Because of that, most bridges/gauges now carry a **USGS backup
-gauge** (`usgs_site_no`) found via search, and `getStageForBridge`/
-`getStageForGauge` fall back to it automatically — this is why the "Gauge"
-column often reads `USGS/...` even for a bridge whose primary source is
-NWPS. If you (or anyone with a normal, unblocked browser) can open
-`https://api.water.noaa.gov/nwps/v1/gauges/eadm7/stageflow` and share the
-raw JSON, `NWPS_STAGE_EXTRACTORS` can be corrected to match the real shape
-and NWPS should start working as the primary source again. A few gauges
-still have no USGS fallback (`stpm5`, `sspm5`, `redm5`, `rdwm5`, `mscm5`,
-`widm5`, `wnam5`, `trew3`, `lcrm5`, `brli4`, `eoki4`, `uini2`, `qldi2`,
-`hnnm7`) and will show "Stage unavailable" until either NWPS is fixed or a
-USGS site number is added for them.
+This project was originally built in a sandboxed environment whose network
+blocked `api.water.noaa.gov`, so `NWPS_STAGE_EXTRACTORS` in `app.js` was
+written from guesses and was failing for most gauges. **This is now fixed**
+— a real sample response was provided (2026-08-09) confirming the actual
+shape: `{ observed: { primaryUnits: "ft", data: [ { validTime, primary },
+... ] } }`. `getStageNWPS` now reads that directly as its first, expected
+path, with a couple of cheap fallback shapes kept just in case a different
+gauge/endpoint variant ever responds differently.
+
+USGS backup gauges (`usgs_site_no`) added earlier while NWPS was broken are
+left in place — they're still useful as a second source if NWPS itself is
+ever down, not just a workaround. Some gauges still have no USGS backup
+(`stpm5`, `sspm5`, `redm5`, `rdwm5`, `lkcm5`, `mscm5`, `widm5`, `wnam5`,
+`trew3`, `lcrm5`, `genw3`, `gtti4`, `musi4`, `nboi2`, `brli4`, `eoki4`,
+`uini2`, `qldi2`, `canm7`, `hnnm7`, `lusm7`, `clkm7`, `cagm7`) — with NWPS
+now working those should generally be fine, but they'll show "Stage
+unavailable" if NWPS itself has an outage for that gauge.
 
 ## Data provenance
 
@@ -149,12 +150,12 @@ Add an entry to `docs/data/gauges.json` with this shape:
 ```
 
 `usgs_site_no` is a fallback used automatically if the NWPS gauge doesn't
-return data (see "Known issue: the live NWPS API" above — right now that's
-most of the time, so add one if you can find it). This list is independent
-of `bridges.json` — a gauge doesn't need to be tied to a bridge to show up
+return data (see "NWPS response shape — confirmed" above; nice to have but
+optional now that NWPS itself works). This list is independent of
+`bridges.json` — a gauge doesn't need to be tied to a bridge to show up
 here. Set `river_mile` to `null` if you don't have a sourced figure for it
-(most entries currently do, since only a few
-mile markers were confidently sourced — see "Data provenance" above).
+(most entries currently do not — only a few lock-and-dam mile markers were
+confidently sourced — see "Data provenance" above).
 
 ## Getting started
 

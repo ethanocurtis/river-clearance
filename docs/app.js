@@ -14,7 +14,7 @@
 // query param a returning visitor can keep seeing old bridge data after a
 // push. Keep in sync with the ?v= on style.css/app.js in index.html and
 // CACHE_NAME in sw.js.
-const DATA_VERSION = '20260809e';
+const DATA_VERSION = '20260809f';
 
 const REFRESH_MS = 5 * 60 * 1000; // auto-refresh every 5 minutes
 const GAUGE_CACHE_KEY = 'gaugeCache';
@@ -200,24 +200,17 @@ async function fetchJSON(url) {
   }
 }
 
-// NWPS's exact JSON shape could not be confirmed against the live API from this
-// environment (network access to api.water.noaa.gov was blocked while building
-// this). These extractors try the field paths documented/observed for the NWPS
-// v1 "stageflow" endpoint; if the live shape differs, add another extractor here
-// rather than changing the caller — the caller just wants {value, time} or null.
+// NWPS v1 "stageflow" real response shape, confirmed 2026-08-09 from a live
+// sample (`observed.data` is an array of points; each point has `primary`
+// in `observed.primaryUnits` — "ft" for a stage gauge — and a `validTime`):
+//   { "observed": { "primaryUnits": "ft", "data": [ { "validTime": "...", "primary": 16.92, ... }, ... ] } }
+// The confirmed shape is tried first; the rest are cheap fallbacks in case a
+// different gauge/endpoint variant ever responds with a flatter shape.
 const NWPS_STAGE_EXTRACTORS = [
-  (j) => j?.observed?.primary != null ? { value: Number(j.observed.primary), time: j.observed.validTime } : null,
-  (j) => j?.observed?.stage != null ? { value: Number(j.observed.stage), time: j.observed.validTime } : null,
-  (j) => j?.observed?.value != null ? { value: Number(j.observed.value), time: j.observed.validTime } : null,
-  // Many NOAA time-series endpoints nest the actual points one level deeper,
-  // e.g. { observed: { data: [ { primary, validTime }, ... ] } } — try that
-  // shape (and a couple of its likely field-name variants) before giving up.
   (j) => Array.isArray(j?.observed?.data) && j.observed.data.length
-    ? { value: Number(j.observed.data[j.observed.data.length - 1].primary ?? j.observed.data[j.observed.data.length - 1].value), time: j.observed.data[j.observed.data.length - 1].validTime }
+    ? { value: Number(j.observed.data[j.observed.data.length - 1].primary), time: j.observed.data[j.observed.data.length - 1].validTime }
     : null,
-  (j) => Array.isArray(j?.observations) && j.observations.length
-    ? { value: Number(j.observations[j.observations.length - 1].value ?? j.observations[j.observations.length - 1].primary), time: j.observations[j.observations.length - 1].validTime }
-    : null,
+  (j) => j?.observed?.primary != null ? { value: Number(j.observed.primary), time: j.observed.validTime } : null,
   (j) => Array.isArray(j?.data) && j.data.length
     ? { value: Number(j.data[j.data.length - 1].value ?? j.data[j.data.length - 1].primary), time: j.data[j.data.length - 1].validTime }
     : null,
