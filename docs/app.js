@@ -14,20 +14,23 @@
 // query param a returning visitor can keep seeing old bridge data after a
 // push. Keep in sync with the ?v= on style.css/app.js in index.html and
 // CACHE_NAME in sw.js.
-const DATA_VERSION = '20260809';
+const DATA_VERSION = '20260809b';
 
 const REFRESH_MS = 5 * 60 * 1000; // auto-refresh every 5 minutes
 const GAUGE_CACHE_KEY = 'gaugeCache';
 const BRIDGES_CACHE_KEY = 'bridgesCache';
+const GAUGES_LIST_CACHE_KEY = 'gaugesListCache';
 const VESSELS_KEY = 'vessels';
 const ACTIVE_VESSEL_KEY = 'activeVesselIndex';
 
 const state = {
   bridges: [],
+  gauges: [],
   vessels: [],
   activeVesselIndex: 0,
   map: null,
   markers: [],
+  gaugeMarkers: [],
   refreshTimer: null,
   lastRenderRows: [], // computed rows from the most recent render, for the alert banner
 };
@@ -84,6 +87,18 @@ function cacheBridges(bridges) {
 function getCachedBridges() {
   try {
     return JSON.parse(localStorage.getItem(BRIDGES_CACHE_KEY) || 'null');
+  } catch {
+    return null;
+  }
+}
+
+function cacheGaugesList(gauges) {
+  localStorage.setItem(GAUGES_LIST_CACHE_KEY, JSON.stringify({ gauges, cachedAt: Date.now() }));
+}
+
+function getCachedGaugesList() {
+  try {
+    return JSON.parse(localStorage.getItem(GAUGES_LIST_CACHE_KEY) || 'null');
   } catch {
     return null;
   }
@@ -217,6 +232,18 @@ async function getStageNWPS(gaugeId) {
   return null;
 }
 
+// Several bridges and standalone route gauges can point at the same NWPS
+// gauge ID (e.g. Dubuque, Rock Island, La Crosse, St. Louis all show up both
+// as a bridge's controlling gauge AND as their own row in the gauges list).
+// This memoizes in-flight/completed NWPS fetches for the duration of one
+// render() so the same gauge isn't hit twice over the network. Reset at the
+// top of render().
+let nwpsFetchMemo = new Map();
+function memoGetStageNWPS(gaugeId) {
+  if (!nwpsFetchMemo.has(gaugeId)) nwpsFetchMemo.set(gaugeId, getStageNWPS(gaugeId));
+  return nwpsFetchMemo.get(gaugeId);
+}
+
 // USGS Instantaneous Values API (gage height, parameter 00065) — stable, documented shape.
 async function getStageUSGS(site) {
   const url = `https://waterservices.usgs.gov/nwis/iv/?format=json&sites=${encodeURIComponent(site)}&parameterCd=00065`;
@@ -240,11 +267,11 @@ async function getStageForBridge(b) {
 
   let live = null;
   if (b.gauge_source === 'NWPS' && b.controlling_gauge_id) {
-    live = await getStageNWPS(b.controlling_gauge_id);
+    live = await memoGetStageNWPS(b.controlling_gauge_id);
     if (!live && b.usgs_site_no) live = await getStageUSGS(b.usgs_site_no);
   } else if (b.gauge_source === 'USGS' && b.usgs_site_no) {
     live = await getStageUSGS(b.usgs_site_no);
-    if (!live && b.controlling_gauge_id) live = await getStageNWPS(b.controlling_gauge_id);
+    if (!live && b.controlling_gauge_id) live = await memoGetStageNWPS(b.controlling_gauge_id);
   }
 
   if (live) {
@@ -256,6 +283,20 @@ async function getStageForBridge(b) {
   if (cached) return { ...cached, stale: true };
 
   return null; // genuinely no data — caller must show "Stage unavailable"
+}
+
+// Same never-fabricate/stale-cache contract as getStageForBridge, for a
+// standalone route gauge (docs/data/gauges.json) that isn't tied to a
+// specific bridge.
+async function getStageForGauge(g) {
+  const live = await memoGetStageNWPS(g.id);
+  if (live) {
+    setCachedStage(g.id, live);
+    return { ...live, stale: false };
+  }
+  const cached = getCachedStage(g.id);
+  if (cached) return { ...cached, stale: true };
+  return null;
 }
 
 // ---------------------------------------------------------------------------
@@ -308,6 +349,23 @@ function clearMarkers() {
   state.markers = [];
 }
 
+function clearGaugeMarkers() {
+  state.gaugeMarkers.forEach((m) => m.remove());
+  state.gaugeMarkers = [];
+}
+
+// Matches the card/table status colors in style.css so the map reads the
+// same way as the list.
+const STATUS_MARKER_COLOR = {
+  ok: '#7be594',
+  marginal: '#f3dc7b',
+  blocked: '#f59b9b',
+  unknown: '#b8c7e6',
+  movable: '#7db8f5',
+  needsdata: '#c8a8f5',
+};
+const GAUGE_MARKER_COLOR = '#4f8ff0';
+
 // ---------------------------------------------------------------------------
 // Rendering
 // ---------------------------------------------------------------------------
@@ -337,6 +395,15 @@ async function computeRows(bridges, vessel) {
     rows.push({ bridge: b, stage, clearance, status: st });
   }
   return rows;
+}
+
+async function computeGaugeRows(gauges) {
+  const rows = [];
+  for (const g of gauges) {
+    const stage = await getStageForGauge(g);
+    rows.push({ gauge: g, stage });
+  }
+  return [...rows].sort((a, b) => (b.gauge.lat ?? 0) - (a.gauge.lat ?? 0)); // north to south
 }
 
 function renderAlertBanner(rows) {
@@ -372,6 +439,22 @@ function renderCards(rows) {
       ${b.notes ? `<div class="card-note">${b.notes}</div>` : ''}
     `;
     wrap.appendChild(card);
+  }
+}
+
+function renderGaugeList(rows) {
+  const wrap = $('gaugeList');
+  wrap.innerHTML = '';
+  for (const r of rows) {
+    const { gauge: g, stage } = r;
+    const row = document.createElement('div');
+    row.className = 'gauge-row';
+    row.innerHTML = `
+      <span class="gauge-name">${g.name}</span>
+      <span class="gauge-id">${g.id}</span>
+      <span class="gauge-stage">${stageLabel(stage)}</span>
+    `;
+    wrap.appendChild(row);
   }
 }
 
@@ -414,8 +497,36 @@ function renderMarkers(rows) {
       Stage: ${stageLabel(stage)}<br/>
       <em>Clearance now:</em> ${clearance != null ? fmt(clearance) + ' ft' : '—'} — <span class="status ${status.cls}">${status.label}</span>
     `;
-    const marker = L.marker([b.lat, b.lon]).addTo(state.map).bindPopup(popup);
+    const marker = L.circleMarker([b.lat, b.lon], {
+      radius: 8,
+      color: '#0b1220',
+      weight: 2,
+      fillColor: STATUS_MARKER_COLOR[status.cls] || STATUS_MARKER_COLOR.unknown,
+      fillOpacity: 0.9,
+    }).addTo(state.map).bindPopup(popup);
     state.markers.push(marker);
+  }
+}
+
+function renderGaugeMarkers(rows) {
+  clearGaugeMarkers();
+  if (!state.map) return;
+  for (const r of rows) {
+    const { gauge: g, stage } = r;
+    if (g.lat == null || g.lon == null) continue;
+    const popup = `
+      <strong>${g.name}</strong><br/>
+      NOAA gauge <code>${g.id}</code>${g.river_mile != null ? ` · Mile ${fmt(g.river_mile, 1)}` : ''}<br/>
+      Stage: ${stageLabel(stage)}
+    `;
+    const marker = L.circleMarker([g.lat, g.lon], {
+      radius: 5,
+      color: '#0b1220',
+      weight: 1,
+      fillColor: GAUGE_MARKER_COLOR,
+      fillOpacity: 0.85,
+    }).addTo(state.map).bindPopup(popup);
+    state.gaugeMarkers.push(marker);
   }
 }
 
@@ -427,20 +538,28 @@ function applyFilters(bridges) {
 }
 
 async function render() {
+  nwpsFetchMemo = new Map(); // fresh per render so bridges + gauges sharing a gauge ID fetch it once
+
   const vessel = activeVessel();
   const bridges = applyFilters(state.bridges);
 
-  let rows = await computeRows(bridges, vessel);
+  const [rows, gaugeRows] = await Promise.all([
+    computeRows(bridges, vessel),
+    computeGaugeRows(state.gauges),
+  ]);
   state.lastRenderRows = rows;
 
+  let visibleRows = rows;
   if ($('onlyConcerning').checked) {
-    rows = rows.filter((r) => r.status.cls === 'blocked' || r.status.cls === 'marginal');
+    visibleRows = rows.filter((r) => r.status.cls === 'blocked' || r.status.cls === 'marginal');
   }
 
   renderAlertBanner(state.lastRenderRows);
-  renderCards(rows);
-  renderTable(rows);
-  renderMarkers(rows);
+  renderCards(visibleRows);
+  renderTable(visibleRows);
+  renderMarkers(visibleRows);
+  renderGaugeList(gaugeRows);
+  renderGaugeMarkers(gaugeRows);
 
   $('lastUpdated').textContent = `Last updated ${new Date().toLocaleTimeString()}`;
 }
@@ -468,6 +587,17 @@ async function loadBridges() {
   return [];
 }
 
+async function loadGauges() {
+  const json = await fetchJSON(`./data/gauges.json?v=${DATA_VERSION}`);
+  if (Array.isArray(json)) {
+    cacheGaugesList(json);
+    return json;
+  }
+  const cached = getCachedGaugesList();
+  if (cached && Array.isArray(cached.gauges)) return cached.gauges;
+  return [];
+}
+
 // ---------------------------------------------------------------------------
 // Init
 // ---------------------------------------------------------------------------
@@ -484,6 +614,14 @@ function wireControls() {
     if (collapsed) controls.removeAttribute('hidden'); else controls.setAttribute('hidden', '');
     btn.setAttribute('aria-expanded', String(collapsed));
     btn.textContent = collapsed ? 'Vessel & filters ▾' : 'Vessel & filters ▸';
+  };
+  $('toggleGauges').onclick = () => {
+    const body = $('gaugesBody');
+    const btn = $('toggleGauges');
+    const collapsed = body.hasAttribute('hidden');
+    if (collapsed) body.removeAttribute('hidden'); else body.setAttribute('hidden', '');
+    btn.setAttribute('aria-expanded', String(collapsed));
+    btn.textContent = collapsed ? 'NOAA Gauges Along the Route ▾' : 'NOAA Gauges Along the Route ▸';
   };
   $('toggleMap').onclick = () => {
     const mapSection = $('map');
@@ -517,7 +655,7 @@ async function init() {
   wireControls();
   registerServiceWorker();
 
-  state.bridges = await loadBridges();
+  [state.bridges, state.gauges] = await Promise.all([loadBridges(), loadGauges()]);
   await render();
 
   state.refreshTimer = setInterval(render, REFRESH_MS);

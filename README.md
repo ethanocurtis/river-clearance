@@ -27,6 +27,18 @@ Mississippi River bridges, using live river stage from NOAA NWPS / USGS.
 - A basic offline cache (`docs/sw.js`) keeps the app shell and last-fetched
   bridge list available if the boat loses signal; the offline banner makes
   clear when you're looking at cached data.
+- Loads `docs/data/gauges.json` — every real NOAA NWPS gauge found from St.
+  Paul down to St. Louis (19 gauges), not just the ones assigned to a
+  bridge. Shown in its own collapsible "NOAA Gauges Along the Route" list
+  and as plain blue dots on the map (bridges are colored circles matching
+  their status). This is reference context for the whole stretch; it does
+  **not** change how a given bridge's clearance is computed — that still
+  comes from that bridge's own `controlling_gauge_id`/`usgs_site_no` in
+  `bridges.json`, same as before.
+- Bridges and gauges that share the same NWPS gauge ID (e.g. Rock Island,
+  Dubuque, La Crosse, St. Louis appear both as a bridge's gauge and as their
+  own row in the gauges list) only fetch that gauge once per refresh —
+  `app.js` memoizes in-flight NWPS requests for the duration of a render.
 
 ## Data provenance
 
@@ -46,13 +58,17 @@ reference articles) instead. Each bridge entry carries:
 `reference_clearance_ft` against the current USACE Upper Mississippi River
 Navigation Charts or the bridge clearance calculator above.**
 
-NOAA NWPS gauge IDs referenced or discovered while building this (some not
-yet wired to a bridge — useful for extending coverage north of Dubuque):
-`stpm5` (St. Paul), `sspm5` (South St. Paul), `redm5`/`rdwm5` (Red Wing),
+All 19 NOAA NWPS gauge IDs found while building this are in
+`docs/data/gauges.json` (St. Paul down to St. Louis) — most aren't wired to
+a specific bridge yet, which is exactly what makes them useful for
+extending bridge coverage north of Dubuque or filling gaps: `stpm5`
+(St. Paul), `sspm5` (South St. Paul), `redm5`/`rdwm5` (Red Wing),
 `wnam5`/`widm5`/`mscm5` (Winona area), `trew3` (Trempealeau), `lcrm5` (La
 Crescent), `lacw3` (La Crosse), `dldi4`/`dbqi4` (Dubuque), `rcki2` (Rock
 Island), `brli4` (Burlington), `eoki4` (Keokuk), `uini2`/`qldi2` (Quincy),
-`hnnm7` (Hannibal), `eadm7` (St. Louis).
+`hnnm7` (Hannibal), `eadm7` (St. Louis). Their lat/lon are approximate
+(the town's location, not the exact gauge structure) — fine for a map
+pin, not precise enough for anything more.
 
 ## Adding or correcting a bridge
 
@@ -83,6 +99,26 @@ Add an entry to `docs/data/bridges.json` with this shape:
 For a bridge whose clearance you don't have a sourced figure for, set
 `reference_clearance_ft` to `null` rather than guessing — the app shows
 "Needs data" for those instead of a false number.
+
+## Adding a gauge
+
+Add an entry to `docs/data/gauges.json` with this shape:
+
+```json
+{
+  "id": "nwps-gauge-id",
+  "name": "Display name, e.g. 'Some City, MN — below Lock & Dam N'",
+  "lat": 00.0,
+  "lon": -00.0,
+  "river_mile": 000.0,
+  "source": "NWPS"
+}
+```
+
+This list is independent of `bridges.json` — a gauge doesn't need to be
+tied to a bridge to show up here. Set `river_mile` to `null` if you don't
+have a sourced figure for it (most entries currently do, since only a few
+mile markers were confidently sourced — see "Data provenance" above).
 
 ## Getting started
 

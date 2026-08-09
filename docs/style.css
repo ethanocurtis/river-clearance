@@ -251,6 +251,57 @@ tr:hover { background: var(--bg-raised); }
 .status.movable { background: var(--mov-bg); color: var(--mov-fg); }
 .status.needsdata { background: var(--need-bg); color: var(--need-fg); }
 
+/* ---------- NOAA gauges ---------- */
+
+.gauges-section { border-top: 1px solid var(--border); }
+
+.gauges-toggle {
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  min-height: var(--touch);
+  background: var(--bg-raised);
+  color: var(--text);
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* No explicit `display` here on purpose — same lesson as the controls-body
+   bug: an author `display` value beats the UA stylesheet's `[hidden] {
+   display: none }` regardless of specificity, which would silently defeat
+   the hidden attribute this section is toggled with. */
+.gauges-body { padding: 4px 16px 16px; }
+
+.gauges-note {
+  margin: 0 0 10px;
+  color: var(--text-dim);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.gauge-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gauge-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-raised);
+  font-size: 13px;
+}
+
+.gauge-name { flex: 1; color: var(--text); }
+.gauge-id { color: var(--text-dim); font-variant: small-caps; }
+.gauge-stage { color: var(--text-dimmer); font-weight: 600; white-space: nowrap; }
+
 /* ---------- Map ---------- */
 
 .map-section { border-top: 1px solid var(--border); }

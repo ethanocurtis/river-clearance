@@ -7,7 +7,7 @@
   <title>Upper Mississippi Bridge Clearance</title>
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <link rel="stylesheet" href="./style.css?v=20260809" />
+  <link rel="stylesheet" href="./style.css?v=20260809b" />
 </head>
 <body>
   <div id="alertBanner" class="alert-banner" hidden></div>
@@ -92,6 +92,22 @@
     </div>
   </section>
 
+  <section class="gauges-section">
+    <button id="toggleGauges" class="gauges-toggle" type="button" aria-expanded="false" aria-controls="gaugesBody">
+      NOAA Gauges Along the Route ▸
+    </button>
+    <div id="gaugesBody" class="gauges-body" hidden>
+      <p class="gauges-note">
+        Every NOAA NWPS gauge found along this stretch, St. Paul to St. Louis
+        — not just the ones assigned to a bridge above. Bridge clearance is
+        computed from each bridge's own assigned gauge (see the Gauge column
+        in the list above); this is the full picture of river stage along
+        the route.
+      </p>
+      <div id="gaugeList" class="gauge-list"></div>
+    </div>
+  </section>
+
   <section class="map-section">
     <button id="toggleMap" class="map-toggle" type="button" aria-expanded="false" aria-controls="map">
       Map ▸
@@ -102,14 +118,16 @@
   <footer>
     <small>
       Seed data covers Dubuque, IA to St. Louis, MO on the Upper Mississippi
-      River. Live stage from NOAA NWPS / USGS when reachable; a stale cached
-      reading is labeled as such; if none is available the bridge shows
-      "Stage unavailable" rather than a guessed number. See README for how to
-      add or correct bridges.
+      River, plus every NOAA NWPS gauge found from St. Paul down to St. Louis.
+      Live stage from NOAA NWPS / USGS when reachable; a stale cached
+      reading is labeled as such; if none is available the bridge or gauge
+      shows "Stage unavailable" rather than a guessed number. On the map,
+      bridge pins are colored by status and gauges are plain blue dots. See
+      README for how to add or correct bridges/gauges.
     </small>
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="./app.js?v=20260809"></script>
+  <script src="./app.js?v=20260809b"></script>
 </body>
 </html>
