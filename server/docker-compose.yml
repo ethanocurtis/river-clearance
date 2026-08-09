@@ -3,13 +3,30 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - "127.0.0.1:8787:8787" # bind to localhost; let nginx (or your reverse proxy) expose it publicly with TLS
+      - "127.0.0.1:8787:8787" # bind to localhost; a reverse proxy on the host reaches it here.
+                               # Using Nginx Proxy Manager (itself in Docker)? See "Nginx Proxy
+                               # Manager" in README.md — you'll likely comment this out and use
+                               # the shared-network block below instead, so NPM reaches this
+                               # container directly without anything published to the host.
     environment:
       - PORT=8787
       - DB_PATH=/data/sync.sqlite3
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
     volumes:
       - river-clearance-data:/data
+    # --- Nginx Proxy Manager users: uncomment both blocks below, replace
+    # NPM_NETWORK_NAME with the actual network name (`docker network ls`),
+    # and you can drop the `ports:` block above entirely -- NPM will reach
+    # this service by its name ("river-clearance-api") on port 8787 over the
+    # shared network. See README.md for the matching NPM UI steps.
+    # networks:
+    #   - default
+    #   - npm_proxy
 
 volumes:
   river-clearance-data:
+
+# networks:
+#   npm_proxy:
+#     external: true
+#     name: NPM_NETWORK_NAME

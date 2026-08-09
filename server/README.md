@@ -67,11 +67,41 @@ curl http://localhost:8787/healthz
 
 ### Putting it behind TLS
 
-Either way, don't expose port 8787 directly to the internet — put nginx (or
-your reverse proxy of choice) in front of it with a real cert. See
-`nginx.conf.example` for a starting point; it also shows how to serve the
-static `docs/` site from the same domain, which is worth doing once you're
-off GitHub Pages anyway (avoids CORS entirely).
+Either way, don't expose port 8787 directly to the internet — put a reverse
+proxy in front of it with a real cert.
+
+#### Nginx Proxy Manager
+
+Since NPM is itself a Docker container, the cleanest hookup is a shared
+Docker network rather than a host-published port:
+
+1. Find NPM's network name: `docker network ls` — look for whatever NPM's
+   own compose file calls it (often `npm_default` or similar; check NPM's
+   `docker-compose.yml` if you're not sure).
+2. In `server/docker-compose.yml`, uncomment the `networks:` block under
+   `river-clearance-api` and the `networks:` block at the bottom of the
+   file, replacing `NPM_NETWORK_NAME` with what you found in step 1. You can
+   also comment out the `ports:` block at that point — nothing needs to be
+   published to the host at all.
+3. `docker compose up -d --build`
+4. In the NPM web UI → **Proxy Hosts** → **Add Proxy Host**:
+   - Domain Names: `your-domain.example`
+   - Scheme: `http`
+   - Forward Hostname / IP: `river-clearance-api` (the service name — Docker's
+     internal DNS resolves it on the shared network)
+   - Forward Port: `8787`
+   - SSL tab: request a new Let's Encrypt certificate, enable Force SSL — NPM
+     handles renewal automatically, nothing to run manually.
+
+If NPM ever can't reach it, `docker network inspect NPM_NETWORK_NAME` should
+list both the NPM container and `river-clearance-api` — if
+`river-clearance-api` isn't there, the network name in step 2 doesn't match.
+
+#### Plain nginx (no NPM)
+
+See `nginx.conf.example` for a starting point; it also shows how to serve
+the static `docs/` site from the same domain, which is worth doing once
+you're off GitHub Pages anyway (avoids CORS entirely).
 
 ### Pointing the frontend at it
 
