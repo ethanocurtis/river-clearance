@@ -49,15 +49,15 @@
     "state": "IL/IA",
     "type": "movable",
     "reference_clearance_ft": 64.7,
-    "reference_datum": "flat pool stage, closed span (open/closed state of this figure not confirmed)",
-    "controlling_gauge_id": null,
-    "gauge_source": null,
-    "usgs_site_no": null,
+    "reference_datum": "flat pool stage (tailwater/lower gauge, confirmed via company tool), closed span (open/closed state of this figure not confirmed)",
+    "controlling_gauge_id": "rcki2",
+    "gauge_source": "NWPS",
+    "usgs_site_no": "413104090334301",
     "lat": 41.51917,
     "lon": -90.56694,
-    "source_note": "Swing-span bridge co-located with Lock & Dam 15; opens on signal for tow traffic. The 64.7 ft figure's open/closed state hasn't been confirmed. CORRECTION (2026-08-11): rcki2 was confirmed live (all rcki2-linked bridges showed the same 5.05 ft) to be Lock & Dam 15's tailwater/lower-pool stage, not the ~18 ft pool level -- USACE RiverGages' single combined station for L&D 15 reports both ('Latest Stage' ~5 ft vs 'Latest Pool Level' ~18 ft) but only the tailwater figure appears to be published to NWPS. This bridge sits upstream of the dam (in the pool), so it needs the pool-level reading, not tailwater -- using rcki2 was overstating clearance by roughly 13 ft. Live gauge disabled rather than compute against the wrong pool, same as Clark Bridge/Mel Price L&D. Downstream rcki2-linked bridges (Rock Island Centennial, Crescent Rail, I-280/Baker) are correctly paired with it and were left unchanged.",
+    "source_note": "Swing-span bridge co-located with Lock & Dam 15; opens on signal for tow traffic. The 64.7 ft figure's open/closed state hasn't been confirmed. CORRECTION (2026-08-11): initially disabled on the assumption this bridge (sitting right next to the dam) needed the ~18 ft upper-pool reading, same issue as I-74 Memorial nearby -- but the company cross-check tool explicitly labels this bridge ('Rock Island RR & Highway') as using 'Lock 15 Lower', confirming it actually needs the tailwater reading rcki2 already provides. Re-enabled. (I-74 Memorial, by contrast, IS explicitly labeled 'Lock 15 Upper' in that same tool and stays disabled -- see its own entry.)",
     "last_checked": "2026-08-11",
-    "notes": "Movable span -- confirm bridge is open/closed state and contact the bridge operator directly before relying on this figure. No live gauge is currently assigned -- see source_note."
+    "notes": "Movable span -- confirm bridge is open/closed state and contact the bridge operator directly before relying on this figure."
   },
   {
     "id": "UMR-520-NORTH-CLINTON-GATEWAY",

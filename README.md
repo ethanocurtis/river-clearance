@@ -139,15 +139,20 @@ NOAA's own gauge map directly: there's no separate upper-pool product at
 all for Mel Price L&D, only the tailwater one — a live reading here would
 need a direct RiverGages.com integration, which this site doesn't have.)
 
-Following that same check across the other lock-adjacent bridges caught
-two more: **Government Bridge** and **I-74/Iowa–Illinois Memorial Bridge**,
-both sitting upstream of Lock & Dam 15, were both using `rcki2` — confirmed
-live (all five rcki2-linked bridges read the same 5.05 ft) to be L&D 15's
-tailwater stage, not the ~18 ft pool level upstream bridges actually need.
-Both overstated clearance by roughly 13 ft as a result and have had their
-live gauge disabled the same way. The three rcki2-linked bridges
-*downstream* of the dam (Rock Island Centennial, Crescent Rail, I-280/Baker)
-are correctly paired with it and were left alone. Worth keeping in mind for
+Following that same check across the other lock-adjacent bridges initially
+flagged two more: Government Bridge and **I-74/Iowa–Illinois Memorial
+Bridge**, both sitting close to Lock & Dam 15, were both using `rcki2` —
+confirmed live (all five rcki2-linked bridges read the same 5.05 ft) to be
+L&D 15's tailwater stage, not the ~18 ft pool level. Mile-marker position
+alone turned out not to be reliable evidence of which pool a bridge needs
+though: the company cross-check tool explicitly labels each Rock Island-area
+bridge "Lock 15 Upper" or "Lock 15 Lower," and only **I-74 Memorial** is
+actually Upper — **Government Bridge** is explicitly labeled Lower there
+despite sitting right next to the dam, so it was re-enabled with `rcki2`
+after being disabled on a wrong assumption. I-74 Memorial (overstated by
+~13 ft) stays disabled. The other three rcki2-linked bridges (Rock Island
+Centennial, Crescent Rail, I-280/Baker) are also explicitly Lower in that
+tool and were left alone. Worth keeping in mind for
 any other bridge sitting right at a lock: the upper/lower distinction
 matters and secondary sources don't always get it right (neither of these
 did — see `alni2`'s and `rcki2`'s own gauges.json entries).
