@@ -7,14 +7,17 @@
   <title>Upper Mississippi Bridge Clearance</title>
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <link rel="stylesheet" href="./style.css?v=20260810b" />
+  <link rel="stylesheet" href="./style.css?v=20260810c" />
 </head>
 <body>
   <div id="alertBanner" class="alert-banner" hidden></div>
   <div id="offlineBanner" class="offline-banner" hidden></div>
 
   <header>
-    <h1>Upper Mississippi Bridge Clearance</h1>
+    <div class="header-row">
+      <h1>Upper Mississippi Bridge Clearance</h1>
+      <button id="accountTrigger" class="account-trigger" type="button">Log in</button>
+    </div>
     <p class="disclaimer">
       <strong>NOT FOR NAVIGATION — informational only.</strong>
       Bridge clearance figures were compiled from public secondary sources and
@@ -65,59 +68,6 @@
           <button id="addVessel" type="button">Add vessel</button>
           <p id="vesselFormError" class="form-error" hidden></p>
         </form>
-
-        <div id="accountPanel" class="account-panel">
-          <h3>Account</h3>
-
-          <div id="accountLoggedOut">
-            <div class="account-tabs">
-              <button id="showLoginTab" type="button" class="account-tab active">Log in</button>
-              <button id="showSignupTab" type="button" class="account-tab">Sign up</button>
-            </div>
-
-            <form id="loginForm" class="account-form" onsubmit="return false;">
-              <label for="loginEmail">Email</label>
-              <input id="loginEmail" type="email" autocomplete="email" />
-              <label for="loginPassword">Password</label>
-              <input id="loginPassword" type="password" autocomplete="current-password" />
-              <button id="loginSubmit" type="button">Log in</button>
-              <button id="showForgotPassword" type="button" class="link-button">Forgot password?</button>
-            </form>
-
-            <form id="signupForm" class="account-form" hidden onsubmit="return false;">
-              <label for="signupEmail">Email</label>
-              <input id="signupEmail" type="email" autocomplete="email" />
-              <label for="signupPassword">Password</label>
-              <input id="signupPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters" />
-              <button id="signupSubmit" type="button">Sign up</button>
-            </form>
-
-            <form id="forgotForm" class="account-form" hidden onsubmit="return false;">
-              <label for="forgotEmail">Email</label>
-              <input id="forgotEmail" type="email" autocomplete="email" />
-              <button id="forgotSubmit" type="button">Send reset link</button>
-              <button id="backToLogin" type="button" class="link-button">Back to log in</button>
-            </form>
-
-            <form id="resetForm" class="account-form" hidden onsubmit="return false;">
-              <p class="sync-note">Enter a new password for your account.</p>
-              <label for="resetPassword">New password</label>
-              <input id="resetPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters" />
-              <button id="resetSubmit" type="button">Set new password</button>
-            </form>
-
-            <p id="accountStatus" class="sync-status" hidden></p>
-          </div>
-
-          <div id="accountLoggedIn" hidden>
-            <p class="account-loggedin-line">
-              Logged in as <strong id="accountEmail"></strong>
-              <span id="accountAdminBadge" class="admin-badge" hidden>admin</span>
-            </p>
-            <p class="sync-note">Vessels here sync automatically to your account.</p>
-            <button id="logoutBtn" type="button">Log out</button>
-          </div>
-        </div>
       </div>
     </div>
   </section>
@@ -216,7 +166,65 @@
     >Report a data issue on GitHub ↗</a>
   </footer>
 
+  <div id="accountModal" class="modal-overlay" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle">
+      <div class="modal-header">
+        <h3 id="accountModalTitle">Account</h3>
+        <button id="accountModalClose" class="modal-close" type="button" aria-label="Close">&times;</button>
+      </div>
+
+      <div id="accountLoggedOut">
+        <div class="account-tabs">
+          <button id="showLoginTab" type="button" class="account-tab active">Log in</button>
+          <button id="showSignupTab" type="button" class="account-tab">Sign up</button>
+        </div>
+
+        <form id="loginForm" class="account-form" onsubmit="return false;">
+          <label for="loginEmail">Email</label>
+          <input id="loginEmail" type="email" autocomplete="email" />
+          <label for="loginPassword">Password</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" />
+          <button id="loginSubmit" type="button">Log in</button>
+          <button id="showForgotPassword" type="button" class="link-button">Forgot password?</button>
+        </form>
+
+        <form id="signupForm" class="account-form" hidden onsubmit="return false;">
+          <label for="signupEmail">Email</label>
+          <input id="signupEmail" type="email" autocomplete="email" />
+          <label for="signupPassword">Password</label>
+          <input id="signupPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters" />
+          <button id="signupSubmit" type="button">Sign up</button>
+        </form>
+
+        <form id="forgotForm" class="account-form" hidden onsubmit="return false;">
+          <label for="forgotEmail">Email</label>
+          <input id="forgotEmail" type="email" autocomplete="email" />
+          <button id="forgotSubmit" type="button">Send reset link</button>
+          <button id="backToLogin" type="button" class="link-button">Back to log in</button>
+        </form>
+
+        <form id="resetForm" class="account-form" hidden onsubmit="return false;">
+          <p class="sync-note">Enter a new password for your account.</p>
+          <label for="resetPassword">New password</label>
+          <input id="resetPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters" />
+          <button id="resetSubmit" type="button">Set new password</button>
+        </form>
+
+        <p id="accountStatus" class="sync-status" hidden></p>
+      </div>
+
+      <div id="accountLoggedIn" hidden>
+        <p class="account-loggedin-line">
+          Logged in as <strong id="accountEmail"></strong>
+          <span id="accountAdminBadge" class="admin-badge" hidden>admin</span>
+        </p>
+        <p class="sync-note">Vessels here sync automatically to your account.</p>
+        <button id="logoutBtn" type="button">Log out</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="./app.js?v=20260810b"></script>
+  <script src="./app.js?v=20260810c"></script>
 </body>
 </html>

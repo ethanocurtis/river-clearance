@@ -14,7 +14,7 @@
 // query param a returning visitor can keep seeing old bridge data after a
 // push. Keep in sync with the ?v= on style.css/app.js in index.html and
 // CACHE_NAME in sw.js.
-const DATA_VERSION = '20260810b';
+const DATA_VERSION = '20260810c';
 
 const REFRESH_MS = 5 * 60 * 1000; // auto-refresh every 5 minutes
 const GAUGE_CACHE_KEY = 'gaugeCache';
@@ -225,12 +225,23 @@ function showAccountForm(which) {
   showStatus('accountStatus', '');
 }
 
+function openAccountModal() {
+  $('accountModal').hidden = false;
+}
+
+function closeAccountModal() {
+  $('accountModal').hidden = true;
+}
+
 function applyLoggedInUI(user) {
   state.user = user;
   $('accountLoggedOut').hidden = true;
   $('accountLoggedIn').hidden = false;
   $('accountEmail').textContent = user.email;
   $('accountAdminBadge').hidden = user.role !== 'admin';
+  const trigger = $('accountTrigger');
+  trigger.textContent = user.email;
+  trigger.classList.add('logged-in');
   if (user.role === 'admin') initAdminPanel();
 }
 
@@ -239,6 +250,9 @@ function applyLoggedOutUI() {
   $('accountLoggedOut').hidden = false;
   $('accountLoggedIn').hidden = true;
   $('adminSection').hidden = true;
+  const trigger = $('accountTrigger');
+  trigger.textContent = 'Log in';
+  trigger.classList.remove('logged-in');
 }
 
 async function checkAuthStatus() {
@@ -271,6 +285,7 @@ async function doLogin() {
     const body = await apiFetch('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
     applyLoggedInUI(body.user);
     await loadVesselsFromServer();
+    closeAccountModal();
   } catch (e) {
     showStatus('accountStatus', e.message, true);
   }
@@ -280,6 +295,7 @@ async function doLogout() {
   try { await apiFetch('/auth/logout', { method: 'POST' }); } catch { /* logging out anyway */ }
   applyLoggedOutUI();
   showAccountForm('loginForm');
+  closeAccountModal();
 }
 
 async function doForgotPassword() {
@@ -306,6 +322,14 @@ async function doResetPassword(token) {
 }
 
 function wireAccountPanel() {
+  $('accountTrigger').onclick = () => openAccountModal();
+  $('accountModalClose').onclick = () => closeAccountModal();
+  $('accountModal').addEventListener('click', (e) => {
+    if (e.target === $('accountModal')) closeAccountModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !$('accountModal').hidden) closeAccountModal();
+  });
   $('showLoginTab').onclick = () => showAccountForm('loginForm');
   $('showSignupTab').onclick = () => showAccountForm('signupForm');
   $('showForgotPassword').onclick = () => showAccountForm('forgotForm');
@@ -322,13 +346,16 @@ function wireAccountPanel() {
 function handleAuthRedirectParams() {
   const params = new URLSearchParams(location.search);
   if (params.has('verified')) {
+    openAccountModal();
     showAccountForm('loginForm');
     showStatus('accountStatus', "Email verified — you're logged in.");
   } else if (params.has('verify_error')) {
+    openAccountModal();
     showAccountForm('loginForm');
     showStatus('accountStatus', 'That verification link is invalid or expired.', true);
   } else if (params.has('reset_token')) {
     const token = params.get('reset_token');
+    openAccountModal();
     showAccountForm('resetForm');
     $('resetSubmit').onclick = () => doResetPassword(token);
   } else {

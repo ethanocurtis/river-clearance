@@ -57,6 +57,13 @@ header {
   background: var(--bg-raised);
 }
 
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 h1 { margin: 0; font-size: 19px; }
 h2 { margin: 0 0 8px; font-size: 15px; color: var(--text-dimmer); }
 
@@ -65,6 +72,70 @@ p.disclaimer {
   color: var(--text-dim);
   font-size: 13px;
   line-height: 1.5;
+}
+
+.account-trigger {
+  flex-shrink: 0;
+  max-width: 42vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  padding: 8px 14px;
+}
+
+.account-trigger.logged-in {
+  border-color: #4f7cf0;
+  background: #16223f;
+}
+
+/* ---------- Account modal ---------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(4, 8, 18, 0.72);
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.modal-overlay[hidden] { display: none; }
+
+.modal-box {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  width: 100%;
+  max-width: 380px;
+  height: fit-content;
+  margin-top: 8vh;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 22px;
+  line-height: 1;
+  padding: 0 6px;
+  min-height: auto;
 }
 
 /* ---------- Controls ---------- */
@@ -163,19 +234,6 @@ button:active { transform: translateY(1px); }
   color: var(--block-fg);
   font-size: 13px;
   margin: 4px 0 0;
-}
-
-.account-panel {
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px dashed var(--border);
-  max-width: 420px;
-}
-
-.account-panel h3 {
-  margin: 0 0 6px;
-  font-size: 14px;
-  color: var(--text-dimmer);
 }
 
 .sync-note {
