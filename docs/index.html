@@ -7,7 +7,7 @@
   <title>Upper Mississippi Bridge Clearance</title>
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <link rel="stylesheet" href="./style.css?v=20260811a" />
+  <link rel="stylesheet" href="./style.css?v=20260811b" />
 </head>
 <body>
   <div id="alertBanner" class="alert-banner" hidden></div>
@@ -131,9 +131,12 @@
     <div id="adminBody" class="admin-body" hidden>
       <p class="gauges-note">
         Edits save directly to this server's copy of the data — live on the
-        site immediately. They do <strong>not</strong> get pushed to GitHub
-        automatically; run <code>git add -A &amp;&amp; git commit &amp;&amp; git push</code>
-        on the VM afterward if you want GitHub to reflect these changes too.
+        site immediately. If the server has auto-push configured, each save
+        also commits and pushes that file to GitHub (the status message
+        below each Save button says "Pushed to GitHub," or explains why not
+        if it failed). If auto-push isn't configured, saves stay local only;
+        run <code>git add -A &amp;&amp; git commit &amp;&amp; git push</code>
+        on the VM to sync GitHub manually.
       </p>
 
       <div class="admin-editor">
@@ -266,6 +269,6 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="./app.js?v=20260811a"></script>
+  <script src="./app.js?v=20260811b"></script>
 </body>
 </html>
