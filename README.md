@@ -124,16 +124,29 @@ A few entries got extra scrutiny and are called out explicitly in their
   it — a later bridge built at an already-permitted crossing commonly just
   matches the existing minimum. Still subject to the usual verify-before-use
   caveat like everything else here, no more or less.
-- **Champ Clark Bridge** (Louisiana, MO) has `reference_clearance_ft: null`
-  on purpose — the only figure found ("405 ft of navigation clearance") is
-  a *horizontal* channel-width spec from the Coast Guard permit, not
-  vertical clearance. Using it as vertical would be a serious error.
-- **Marquette–Joliet Bridge** also has `reference_clearance_ft: null` — a
-  found figure (28.58 ft) looked implausibly low for a fixed highway span
-  over the main channel and wasn't used.
-- **St. Paul Union Pacific Vertical-lift Rail Bridge** — only the *raised*
+- **Champ Clark Bridge** (Louisiana, MO) — the only figure originally found
+  ("405 ft of navigation clearance") was a *horizontal* channel-width spec
+  from the Coast Guard permit, not vertical clearance, so this was left
+  `null` rather than risk using it as vertical. A real vertical figure was
+  sourced later and is now filled in.
+- **Marquette–Joliet Bridge** — an earlier-found figure (28.58 ft) looked
+  implausibly low for a fixed highway span over the main channel and wasn't
+  used; a more plausible figure (60 ft, consistent with comparable spans on
+  this stretch) was sourced later and is now filled in.
+- **Chain of Rocks Canal Bridge** — its figure is referenced to Lock 27's
+  upper pool elevation rather than a standard river gauge, so no live gauge
+  is currently assigned to it; it'll show "Stage unavailable" for the
+  live-computed clearance even though `reference_clearance_ft` is filled in.
+- **St. Paul Union Pacific Vertical-lift Rail Bridge** and **Wabasha Street
+  Bridge** (St. Paul) are still the two remaining bridges with
+  `reference_clearance_ft: null` — for the UP bridge, only the *raised*
   clearance (72 ft) was found; the down/closed clearance, the one that
   actually matters day-to-day, is unknown.
+- Several other previously-`null` bridges (Keokuk–Hamilton, I-280, I-74
+  Memorial, Winona Main Channel, Fort Madison, Crescent Rail, Government
+  Bridge) also got real figures filled in later. The three movable spans
+  among them (Fort Madison, Crescent Rail, Government Bridge) have their
+  open/closed state unconfirmed — see each entry's `notes`.
 
 Every NOAA NWPS gauge ID found while building this is in
 `docs/data/gauges.json` (32 gauges, St. Paul down to St. Louis, roughly one
