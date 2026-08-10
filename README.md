@@ -150,7 +150,12 @@ bridge "Lock 15 Upper" or "Lock 15 Lower," and only **I-74 Memorial** is
 actually Upper — **Government Bridge** is explicitly labeled Lower there
 despite sitting right next to the dam, so it was re-enabled with `rcki2`
 after being disabled on a wrong assumption. I-74 Memorial (overstated by
-~13 ft) stays disabled. The other three rcki2-linked bridges (Rock Island
+~13 ft) now uses `leci4` (Le Claire, near L&D 14) instead — a same-pool
+proxy rather than a station-specific match (Le Claire is where Pool 15
+ends upstream, so it's genuinely reading the same controlled pool this
+bridge sits in, ~10 miles away), used because NWPS doesn't publish a
+dedicated upper-pool gauge for L&D 15 at all (checked directly on NOAA's
+own gauge map). The other three rcki2-linked bridges (Rock Island
 Centennial, Crescent Rail, I-280/Baker) are also explicitly Lower in that
 tool and were left alone. Worth keeping in mind for
 any other bridge sitting right at a lock: the upper/lower distinction

@@ -589,15 +589,15 @@
     "state": "IA/IL",
     "type": "fixed",
     "reference_clearance_ft": 65.3,
-    "reference_datum": "flat pool stage",
-    "controlling_gauge_id": null,
-    "gauge_source": null,
+    "reference_datum": "flat pool stage (Pool 15 upper-pool reading, per company cross-check tool) -- live gauge is a nearby same-pool proxy, not station-specific, see source_note",
+    "controlling_gauge_id": "leci4",
+    "gauge_source": "NWPS",
     "usgs_site_no": null,
     "lat": 41.51694,
     "lon": -90.51056,
-    "source_note": "New twin arch spans opened 2020/2021. Vertical clearance figure available; not yet cross-checked against the current USACE chart book. CORRECTION (2026-08-11): rcki2 was confirmed live (all rcki2-linked bridges showed the same 5.05 ft) to be Lock & Dam 15's tailwater/lower-pool stage, not the ~18 ft pool level -- USACE RiverGages' single combined station for L&D 15 reports both ('Latest Stage' ~5 ft vs 'Latest Pool Level' ~18 ft) but only the tailwater figure appears to be published to NWPS. This bridge sits upstream of the dam (in the pool), so it needs the pool-level reading, not tailwater -- using rcki2 was overstating clearance by roughly 13 ft. Live gauge disabled rather than compute against the wrong pool, same as Clark Bridge/Mel Price L&D. Downstream rcki2-linked bridges (Rock Island Centennial, Crescent Rail, I-280/Baker) are correctly paired with it and were left unchanged.",
+    "source_note": "New twin arch spans opened 2020/2021. Reference figure (65.3 ft) is from a company cross-check tool, not the official USACE chart. This bridge sits in Pool 15 (between Lock & Dam 15 and Lock & Dam 14) and needs that pool's ~18 ft upper-pool reading -- confirmed via the company tool ('Lock 15 Upper') -- but NWPS doesn't publish a dedicated upper-pool gauge for L&D 15 (checked directly on NOAA's own gauge map). Using leci4 (Le Claire, near L&D 14) instead: Le Claire is where Pool 15 ends upstream, so it reads water in the same controlled pool as this bridge, not a different one -- a reasonable proxy, not a station-specific match. Treat the live number here as approximate.",
     "last_checked": "2026-08-11",
-    "notes": "VERIFY before operational use -- reference figure is from a company cross-check tool, not the official USACE chart. No live gauge is currently assigned -- see source_note."
+    "notes": "VERIFY before operational use -- reference figure is from a company cross-check tool, not the official USACE chart. Live gauge is a same-pool proxy (leci4, ~10 miles away), not station-specific -- see source_note."
   },
   {
     "id": "UMR-520-CLINTON-RAIL",
