@@ -169,6 +169,7 @@ button:active { transform: translateY(1px); }
   margin-top: 16px;
   padding-top: 12px;
   border-top: 1px dashed var(--border);
+  max-width: 420px;
 }
 
 .account-panel h3 {
@@ -206,6 +207,12 @@ button:active { transform: translateY(1px); }
   flex-direction: column;
   gap: 6px;
 }
+
+/* Same lesson as .controls-body above: an author `display` rule beats the
+   UA stylesheet's `[hidden] { display: none }`, so each hidden form needs
+   its own explicit override or all four (login/signup/forgot/reset) render
+   stacked at once regardless of which tab is active. */
+.account-form[hidden] { display: none; }
 
 .account-form label { margin-top: 4px; }
 
