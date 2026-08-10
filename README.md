@@ -145,7 +145,7 @@ Bridge**, both sitting close to Lock & Dam 15, were both using `rcki2` —
 confirmed live (all five rcki2-linked bridges read the same 5.05 ft) to be
 L&D 15's tailwater stage, not the ~18 ft pool level. Mile-marker position
 alone turned out not to be reliable evidence of which pool a bridge needs
-though: the company cross-check tool explicitly labels each Rock Island-area
+though: the cross-check tool explicitly labels each Rock Island-area
 bridge "Lock 15 Upper" or "Lock 15 Lower," and only **I-74 Memorial** is
 actually Upper — **Government Bridge** is explicitly labeled Lower there
 despite sitting right next to the dam, so it was re-enabled with `rcki2`
@@ -263,8 +263,8 @@ that have actually been checked against something:
 
 - `"chart"` — confirmed against an official USACE Supplemental Chart.
   Highest confidence on the site.
-- `"cross-checked"` — confirmed or sourced against a company-provided
-  operational reference tool, not (yet) an official chart.
+- `"cross-checked"` — confirmed or sourced against a secondary operational
+  reference tool, not (yet) an official chart.
 - `"flagged"` — a real disagreement between sources was found and hasn't
   been resolved. Extra caution warranted, not just the default disclaimer.
 - `null` (or omit it) — the default. An original secondary-source figure

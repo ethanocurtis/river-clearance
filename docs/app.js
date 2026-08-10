@@ -14,7 +14,7 @@
 // query param a returning visitor can keep seeing old bridge data after a
 // push. Keep in sync with the ?v= on style.css/app.js in index.html and
 // CACHE_NAME in sw.js.
-const DATA_VERSION = '20260811l';
+const DATA_VERSION = '20260811m';
 
 const REFRESH_MS = 5 * 60 * 1000; // auto-refresh every 5 minutes
 const GAUGE_CACHE_KEY = 'gaugeCache';
@@ -1030,7 +1030,7 @@ const VERIFICATION_BADGES = {
   'cross-checked': {
     label: 'Cross-checked',
     cls: 'verif-crosscheck',
-    title: 'Confirmed or sourced against a company-provided operational reference tool -- not yet checked against an official USACE chart.',
+    title: 'Confirmed or sourced against a secondary operational reference tool -- not yet checked against an official USACE chart.',
   },
   flagged: {
     label: 'Discrepancy flagged',
