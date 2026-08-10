@@ -254,12 +254,22 @@ docker compose up -d --build
 docker compose logs --tail 20   # should log "admin edits will auto-commit + push to GitHub"
 ```
 
-If a push ever fails (most commonly: the VM's branch is behind `origin`
-because you pushed other commits since the last `git pull` on the VM), the
-file save still succeeds — the admin panel reports the push failure so you
-know to `git pull` on the VM and either retry the edit or push manually.
-`gitSync.js` never force-pushes or touches any file other than the one being
-saved.
+If a push ever fails, the file save still succeeds — the admin panel reports
+the push failure so you know something needs attention. `gitSync.js` never
+force-pushes or touches any file other than the one being saved, and the
+commit it already made locally isn't lost; it rides along on whatever push
+succeeds next (another admin save, or a manual `git push` on the VM).
+
+Common causes:
+
+- **The VM's branch is behind `origin`** (you pushed other commits since the
+  last `git pull` on the VM) — `git pull` on the VM, then retry the edit or
+  push manually.
+- **`server certificate verification failed. CAfile: none CRLfile: none`** —
+  the image is missing `ca-certificates` (needed for git's own HTTPS push to
+  verify GitHub's TLS cert; already in this repo's Dockerfile, but worth
+  knowing if you're building on a different base image). `docker compose up
+  -d --build` after confirming it's installed.
 
 ## Backing it up
 
