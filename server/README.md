@@ -174,11 +174,14 @@ See `nginx.conf.example` for a starting point.
 
 This container can serve `docs/` directly — same origin as the API, no CORS
 at all. This is the setup `docs/app.js` assumes by default (`API_BASE =
-'/api'`, a relative path).
+'/api'`, a relative path). The compose file bind-mounts your whole repo
+(not just `docs/`) to `/repo`, so this also doubles as the mount `gitSync.js`
+needs for admin auto-push (see below) — set `STATIC_DIR` even if you don't
+plan to use auto-push, since that's what makes the site available at all.
 
 ```bash
 cd server
-echo "STATIC_DIR=/site" >> .env
+echo "STATIC_DIR=/repo/docs" >> .env
 docker compose up -d --build
 curl http://localhost:8787/         # should return the site's HTML
 ```
@@ -203,27 +206,60 @@ const API_BASE = 'https://your-api-domain.example/api';
 Log in with an `ADMIN_EMAILS` account and an "Admin: Edit Site Data" section
 appears on the site. It's a raw JSON editor (load current content, edit,
 save) for `bridges.json`/`gauges.json` — not a form-based table, but no
-SSH/git/manual-edit-and-push needed for a quick fix.
+SSH/manual-edit-and-push needed for a quick fix.
 
-**Important:** saves write directly to `docs/data/*.json` on the VM's
-filesystem (via the bind mount) — live on the site immediately, but **not**
-automatically committed or pushed to GitHub. If you want GitHub to reflect
-an admin edit, run on the VM afterward:
+Saves always write directly to `docs/data/*.json` on the VM's filesystem
+(via the bind mount) — live on the site immediately. Whether that also
+reaches GitHub depends on whether auto-push is configured (below):
 
-```bash
-cd ~/river-clearance
-git add -A && git commit -m "Update bridge/gauge data via admin panel" && git push
-```
-
-Until you do that, the VM's copy and GitHub's copy have diverged — worth
-knowing before your next `git pull` (uncommitted local changes will block it,
-same as any other local edit; `git stash` or commit first).
+- **Configured** — the save also commits and pushes that one file to GitHub
+  immediately. The admin panel shows the result ("Saved and pushed to
+  GitHub" or, if the push failed, why).
+- **Not configured** — saves are file-only, same as before; the VM's copy
+  and GitHub's copy will diverge until you manually `git add -A && git
+  commit && git push` on the VM.
 
 If you'd rather the admin panel not be able to write into your git working
-directory at all, change the `docs:/site` volume mount in
-`docker-compose.yml` to `docs:/site:ro` and leave `DATA_DIR` unset — the
-admin data endpoints respond 501 (disabled) instead, everything else
-(accounts, vessel sync, the site itself) keeps working normally.
+directory at all, remove the `..:/repo` volume mount in `docker-compose.yml`
+and leave `STATIC_DIR`/`DATA_DIR`/`REPO_DIR` unset — the admin data and git
+endpoints respond 501 (disabled) instead, everything else (accounts, vessel
+sync) keeps working normally, and you'd host `docs/` separately.
+
+### Auto-committing admin edits to GitHub
+
+Requires two things in `.env`:
+
+- **`REPO_DIR=/repo`** — matches the bind mount above. `gitSync.js` runs
+  real `git` commands (`add`, `commit`, `push`) against this path, scoped to
+  only the one file being saved — it never touches anything else you might
+  have modified by hand in the working tree (e.g. `docker-compose.yml`'s
+  NPM network block).
+- **`GIT_PUSH_TOKEN`** — a GitHub token with write access to this repo. A
+  [fine-grained personal access
+  token](https://github.com/settings/personal-access-tokens/new) scoped to
+  just this one repository, with **Contents: Read and write** permission
+  and nothing else, is the least amount of access that works. Generate one,
+  copy it once (GitHub won't show it again), and put it in `.env`.
+
+Optional: `GIT_COMMIT_NAME`/`GIT_COMMIT_EMAIL` control the commit author
+(defaults to "River Clearance Admin" / `admin@localhost`).
+
+```bash
+cd ~/river-clearance/server
+cat >> .env << 'EOF'
+REPO_DIR=/repo
+GIT_PUSH_TOKEN=github_pat_your_token_here
+EOF
+docker compose up -d --build
+docker compose logs --tail 20   # should log "admin edits will auto-commit + push to GitHub"
+```
+
+If a push ever fails (most commonly: the VM's branch is behind `origin`
+because you pushed other commits since the last `git pull` on the VM), the
+file save still succeeds — the admin panel reports the push failure so you
+know to `git pull` on the VM and either retry the edit or push manually.
+`gitSync.js` never force-pushes or touches any file other than the one being
+saved.
 
 ## Backing it up
 

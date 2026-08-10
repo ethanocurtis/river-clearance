@@ -7,7 +7,7 @@
   <title>Upper Mississippi Bridge Clearance</title>
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <link rel="stylesheet" href="./style.css?v=20260810e" />
+  <link rel="stylesheet" href="./style.css?v=20260811a" />
 </head>
 <body>
   <div id="alertBanner" class="alert-banner" hidden></div>
@@ -41,6 +41,14 @@
           <option value="All">All</option>
           <option>Mississippi</option>
         </select>
+      </div>
+
+      <div class="control">
+        <label for="routeSelect">Route</label>
+        <select id="routeSelect">
+          <option value="">All bridges</option>
+        </select>
+        <button id="manageRoutesBtn" type="button" class="link-button">Manage routes…</button>
       </div>
 
       <div class="control">
@@ -229,7 +237,35 @@
     </div>
   </div>
 
+  <div id="routesModal" class="modal-overlay" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="routesModalTitle">
+      <div class="modal-header">
+        <h3 id="routesModalTitle">Routes</h3>
+        <button id="routesModalClose" class="modal-close" type="button" aria-label="Close">&times;</button>
+      </div>
+
+      <p class="sync-note">
+        Save a subset of bridges as a named route (e.g. a specific trip) and
+        the main list filters down to just those, in river-mile order.
+        Routes sync to your account like vessels do when you're logged in.
+      </p>
+
+      <div id="routesList"></div>
+      <button id="newRouteBtn" type="button">+ New route</button>
+
+      <form id="routeForm" class="account-form" hidden onsubmit="return false;">
+        <label for="routeName">Route name</label>
+        <input id="routeName" type="text" placeholder="e.g. St. Louis to Dubuque" />
+        <label>Bridges on this route</label>
+        <div id="routeBridgeChecklist" class="route-checklist"></div>
+        <button id="routeSaveBtn" type="button">Save route</button>
+        <button id="routeCancelBtn" type="button" class="link-button">Cancel</button>
+        <p id="routeFormError" class="form-error" hidden></p>
+      </form>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="./app.js?v=20260810e"></script>
+  <script src="./app.js?v=20260811a"></script>
 </body>
 </html>

@@ -12,7 +12,7 @@ services:
       - PORT=8787
       - DB_PATH=/data/sync.sqlite3
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
-      # Set to /site to also serve the static docs/ folder from this same
+      # Set to /repo/docs to also serve the static docs/ folder from this same
       # container (same-origin frontend + API, no CORS). Leave unset/empty
       # for an API-only deployment. See "Serving the whole site from this
       # container" in README.md.
@@ -30,17 +30,27 @@ services:
       - SMTP_PASS=${SMTP_PASS:-}
       - MAIL_FROM=${MAIL_FROM:-}
       - COOKIE_SECURE=${COOKIE_SECURE:-true}
+      # Auto-commit + push admin data edits back to GitHub -- both required
+      # to enable it, see "Auto-committing admin edits to GitHub" in
+      # README.md. Leave both unset for file-only admin saves (no git).
+      - REPO_DIR=${REPO_DIR:-}
+      - GIT_PUSH_TOKEN=${GIT_PUSH_TOKEN:-}
+      - GIT_COMMIT_NAME=${GIT_COMMIT_NAME:-River Clearance Admin}
+      - GIT_COMMIT_EMAIL=${GIT_COMMIT_EMAIL:-}
     volumes:
       - river-clearance-data:/data
-      # Only used if STATIC_DIR=/site above -- bind-mounts the repo's docs/
-      # folder read-write, so `git pull` on the host updates the live site
-      # immediately (no image rebuild for content-only changes), AND so the
-      # admin data-editing API can write bridges.json/gauges.json back here.
-      # If you don't want the admin panel able to write to your git working
-      # directory, change this to :ro and leave DATA_DIR unset instead --
-      # admin editing just responds 501 (disabled) rather than breaking
-      # anything else.
-      - ../docs:/site
+      # Bind-mounts the WHOLE repo (not just docs/) read-write, at /repo --
+      # needed so gitSync.js can run real git commands (add/commit/push)
+      # against your actual working tree. `git pull` on the host still
+      # updates the live site immediately with no rebuild needed for
+      # content-only changes. Set STATIC_DIR=/repo/docs above to serve the
+      # site from this same container; set REPO_DIR=/repo + GIT_PUSH_TOKEN
+      # above to enable admin auto-push. If you'd rather the container not
+      # be able to touch your git working directory at all, remove this
+      # mount and leave STATIC_DIR/DATA_DIR/REPO_DIR unset -- the site then
+      # needs to be served/hosted separately, and admin data editing/git
+      # sync are both disabled (501) rather than breaking anything else.
+      - ..:/repo
     # --- Nginx Proxy Manager users: uncomment both blocks below, replace
     # NPM_NETWORK_NAME with the actual network name (`docker network ls`),
     # and you can drop the `ports:` block above entirely -- NPM will reach

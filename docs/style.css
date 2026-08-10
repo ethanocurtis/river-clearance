@@ -77,6 +77,15 @@ body {
   to { transform: rotate(360deg); }
 }
 
+.trend {
+  font-size: 11px;
+  cursor: default;
+}
+
+.trend-rising { color: var(--marg-fg); }
+.trend-falling { color: var(--ok-fg); }
+.trend-steady { color: var(--text-dim); }
+
 /* ---------- Header ---------- */
 
 header {
@@ -271,6 +280,31 @@ button:disabled { opacity: 0.6; cursor: default; transform: none; }
   font-size: 12px;
   line-height: 1.5;
 }
+
+#routesList { margin-bottom: 10px; }
+
+.route-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid #243258;
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: #101a33;
+}
+
+.route-checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text);
+  min-height: 28px;
+}
+
+.route-checklist-item input { min-height: auto; }
 
 .account-tabs {
   display: flex;

@@ -1,8 +1,9 @@
 FROM node:20-slim
 
-# better-sqlite3 needs to compile a native addon.
+# better-sqlite3 needs to compile a native addon; git is for gitSync.js
+# (auto-committing admin data edits -- see REPO_DIR/GIT_PUSH_TOKEN in README).
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 make g++ \
+    python3 make g++ git \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

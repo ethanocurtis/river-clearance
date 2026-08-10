@@ -14,14 +14,26 @@
 // query param a returning visitor can keep seeing old bridge data after a
 // push. Keep in sync with the ?v= on style.css/app.js in index.html and
 // CACHE_NAME in sw.js.
-const DATA_VERSION = '20260810e';
+const DATA_VERSION = '20260811a';
 
 const REFRESH_MS = 5 * 60 * 1000; // auto-refresh every 5 minutes
 const GAUGE_CACHE_KEY = 'gaugeCache';
+const GAUGE_HISTORY_KEY = 'gaugeHistory';
 const BRIDGES_CACHE_KEY = 'bridgesCache';
 const GAUGES_LIST_CACHE_KEY = 'gaugesListCache';
 const VESSELS_KEY = 'vessels';
 const ACTIVE_VESSEL_KEY = 'activeVesselIndex';
+const ROUTES_KEY = 'routes';
+const ACTIVE_ROUTE_KEY = 'activeRouteId';
+
+// Stage trend (rising/falling): compare the current reading to the oldest
+// history sample that's at least TREND_MIN_AGE_MS old but not older than
+// TREND_MAX_AGE_MS -- old enough that river stage has had time to actually
+// move, not so old the comparison is meaningless. Differences smaller than
+// TREND_THRESHOLD_FT are just noise/rounding, shown as steady.
+const TREND_MIN_AGE_MS = 30 * 60 * 1000;
+const TREND_MAX_AGE_MS = 6 * 60 * 60 * 1000;
+const TREND_THRESHOLD_FT = 0.1;
 
 // Relative path: assumes this same server serves both the site and the API
 // (see /server, STATIC_DIR) — same-origin, cookies just work. If the
@@ -34,6 +46,8 @@ const state = {
   gauges: [],
   vessels: [],
   activeVesselIndex: 0,
+  routes: [], // [{ id, name, bridgeIds: [...] }] -- see "Routes" section below
+  activeRouteId: null, // null/'' = show all bridges
   user: null, // { id, email, role } once logged in, else null
   map: null,
   markers: [],
@@ -69,6 +83,27 @@ function saveActiveVesselIndex(i) {
   localStorage.setItem(ACTIVE_VESSEL_KEY, String(i));
 }
 
+function loadRoutes() {
+  try {
+    return JSON.parse(localStorage.getItem(ROUTES_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function saveRoutes(routes) {
+  localStorage.setItem(ROUTES_KEY, JSON.stringify(routes));
+}
+
+function loadActiveRouteId() {
+  return localStorage.getItem(ACTIVE_ROUTE_KEY) || null;
+}
+
+function saveActiveRouteId(id) {
+  if (id) localStorage.setItem(ACTIVE_ROUTE_KEY, id);
+  else localStorage.removeItem(ACTIVE_ROUTE_KEY);
+}
+
 function getGaugeCache() {
   try {
     return JSON.parse(localStorage.getItem(GAUGE_CACHE_KEY) || '{}');
@@ -85,6 +120,47 @@ function setCachedStage(gaugeId, reading) {
 
 function getCachedStage(gaugeId) {
   return getGaugeCache()[gaugeId] || null;
+}
+
+// A short rolling history per gauge ID (a handful of {t, v} samples, each at
+// least 5 minutes apart, pruned past TREND_MAX_AGE_MS) -- just enough to
+// compare "now" against "a while ago" for the rising/falling trend badge.
+// Unlike getGaugeCache/setCachedStage above (which only ever remember the
+// single latest reading), this deliberately keeps more than one point.
+function getGaugeHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(GAUGE_HISTORY_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function recordGaugeHistory(gaugeId, stageFt) {
+  if (typeof stageFt !== 'number' || Number.isNaN(stageFt)) return;
+  const hist = getGaugeHistory();
+  const arr = hist[gaugeId] || [];
+  const now = Date.now();
+  if (arr.length && now - arr[arr.length - 1].t < 5 * 60 * 1000) return; // don't bloat on frequent refreshes
+  arr.push({ t: now, v: stageFt });
+  const cutoff = now - TREND_MAX_AGE_MS - 60 * 60 * 1000; // a little slack past the comparison window
+  hist[gaugeId] = arr.filter((p) => p.t >= cutoff);
+  localStorage.setItem(GAUGE_HISTORY_KEY, JSON.stringify(hist));
+}
+
+// Returns { dir: 'rising'|'falling'|'steady', diffFt, sinceMs } or null if
+// there's no eligible history sample yet (e.g. first visit, or the site
+// hasn't been open long enough to have a sample old enough to compare against).
+function getTrend(gaugeId, currentStageFt) {
+  if (typeof currentStageFt !== 'number' || Number.isNaN(currentStageFt)) return null;
+  const arr = getGaugeHistory()[gaugeId];
+  if (!arr || !arr.length) return null;
+  const now = Date.now();
+  const eligible = arr.filter((p) => now - p.t >= TREND_MIN_AGE_MS && now - p.t <= TREND_MAX_AGE_MS);
+  if (!eligible.length) return null;
+  const ref = eligible.reduce((a, b) => (a.t < b.t ? a : b)); // oldest eligible sample = most stable comparison
+  const diffFt = currentStageFt - ref.v;
+  const dir = Math.abs(diffFt) < TREND_THRESHOLD_FT ? 'steady' : diffFt > 0 ? 'rising' : 'falling';
+  return { dir, diffFt, sinceMs: now - ref.t };
 }
 
 function cacheBridges(bridges) {
@@ -260,6 +336,7 @@ async function checkAuthStatus() {
     const body = await apiFetch('/auth/me');
     applyLoggedInUI(body.user);
     await loadVesselsFromServer();
+    await loadRoutesFromServer();
   } catch {
     applyLoggedOutUI(); // 401 (not logged in) is the expected/common case here, not an error to surface
   }
@@ -416,6 +493,204 @@ async function syncVesselsToServer() {
 }
 
 // ---------------------------------------------------------------------------
+// Route sync (same pattern as vessels above -- local by default, synced to
+// the account when logged in)
+// ---------------------------------------------------------------------------
+
+async function loadRoutesFromServer() {
+  try {
+    const body = await apiFetch('/routes');
+    const routes = body?.data?.routes;
+    if (Array.isArray(routes) && routes.length) {
+      state.routes = routes;
+      state.activeRouteId = body.data.activeRouteId ?? null;
+      saveRoutes(state.routes);
+      saveActiveRouteId(state.activeRouteId);
+    } else if (state.routes.length) {
+      // Nothing saved server-side yet -- push what's local up as a starting point.
+      await syncRoutesToServer();
+    }
+    renderRouteSelect();
+    await render();
+  } catch (e) {
+    console.warn('Could not load routes from account', e);
+  }
+}
+
+async function syncRoutesToServer() {
+  if (!state.user) return;
+  try {
+    await apiFetch('/routes', {
+      method: 'PUT',
+      body: JSON.stringify({ routes: state.routes, activeRouteId: state.activeRouteId }),
+    });
+  } catch (e) {
+    console.warn('Could not sync routes to account', e);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Routes UI: pick a saved subset/order of bridges as "my trip" instead of
+// always seeing the whole river. Routes are just a name + a list of bridge
+// IDs -- nothing river-specific baked in, so this keeps working as-is
+// whenever more river segments get added later.
+// ---------------------------------------------------------------------------
+
+let editingRouteId = null; // null while the create/edit form is closed or creating new
+
+function renderRouteSelect() {
+  const sel = $('routeSelect');
+  sel.innerHTML = '';
+  const allOpt = document.createElement('option');
+  allOpt.value = '';
+  allOpt.textContent = 'All bridges';
+  sel.appendChild(allOpt);
+  for (const r of state.routes) {
+    const opt = document.createElement('option');
+    opt.value = r.id;
+    opt.textContent = `${r.name} (${r.bridgeIds.length})`;
+    sel.appendChild(opt);
+  }
+  const validValue = state.routes.some((r) => r.id === state.activeRouteId) ? state.activeRouteId : '';
+  sel.value = validValue;
+  state.activeRouteId = validValue || null;
+}
+
+function openRoutesModal() {
+  renderRoutesList();
+  hideRouteForm();
+  $('routesModal').hidden = false;
+}
+
+function closeRoutesModal() {
+  $('routesModal').hidden = true;
+}
+
+function renderRoutesList() {
+  const wrap = $('routesList');
+  wrap.innerHTML = '';
+  if (!state.routes.length) {
+    const p = document.createElement('p');
+    p.className = 'sync-note';
+    p.textContent = 'No saved routes yet -- add one below.';
+    wrap.appendChild(p);
+    return;
+  }
+  for (const r of state.routes) {
+    const row = document.createElement('div');
+    row.className = 'vessel-row'; // same look as the vessel list, no need for a separate style
+
+    const selectBtn = document.createElement('button');
+    selectBtn.type = 'button';
+    selectBtn.className = 'vessel-select';
+    selectBtn.textContent = `${r.name} — ${r.bridgeIds.length} bridge${r.bridgeIds.length === 1 ? '' : 's'}`;
+    selectBtn.onclick = () => openRouteForm(r.id);
+
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'vessel-delete';
+    delBtn.textContent = '✕';
+    delBtn.setAttribute('aria-label', `Delete route ${r.name}`);
+    delBtn.onclick = () => deleteRoute(r.id);
+
+    row.appendChild(selectBtn);
+    row.appendChild(delBtn);
+    wrap.appendChild(row);
+  }
+}
+
+function openRouteForm(routeId) {
+  editingRouteId = routeId || null;
+  const route = routeId ? state.routes.find((r) => r.id === routeId) : null;
+  $('routeName').value = route ? route.name : '';
+  renderRouteChecklist(route ? new Set(route.bridgeIds) : new Set());
+  $('routeFormError').hidden = true;
+  $('routeForm').hidden = false;
+}
+
+function hideRouteForm() {
+  editingRouteId = null;
+  $('routeForm').hidden = true;
+}
+
+function renderRouteChecklist(selectedIds) {
+  const wrap = $('routeBridgeChecklist');
+  wrap.innerHTML = '';
+  const sorted = [...state.bridges].sort((a, b) => (a.river_mile ?? 0) - (b.river_mile ?? 0));
+  for (const b of sorted) {
+    const label = document.createElement('label');
+    label.className = 'route-checklist-item';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.value = b.id;
+    cb.checked = selectedIds.has(b.id);
+    label.appendChild(cb);
+    label.append(` ${b.name} — Mile ${fmt(b.river_mile, 1)}`);
+    wrap.appendChild(label);
+  }
+}
+
+function saveRouteFromForm() {
+  const name = $('routeName').value.trim();
+  if (!name) return showRouteFormError('Enter a route name.');
+  const bridgeIds = Array.from($('routeBridgeChecklist').querySelectorAll('input:checked')).map((cb) => cb.value);
+  if (!bridgeIds.length) return showRouteFormError('Select at least one bridge.');
+
+  if (editingRouteId) {
+    const route = state.routes.find((r) => r.id === editingRouteId);
+    route.name = name;
+    route.bridgeIds = bridgeIds;
+  } else {
+    const id = `route-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    state.routes.push({ id, name, bridgeIds });
+  }
+  saveRoutes(state.routes);
+  syncRoutesToServer();
+  renderRouteSelect();
+  renderRoutesList();
+  hideRouteForm();
+  render();
+}
+
+function deleteRoute(routeId) {
+  state.routes = state.routes.filter((r) => r.id !== routeId);
+  if (state.activeRouteId === routeId) {
+    state.activeRouteId = null;
+    saveActiveRouteId(null);
+  }
+  saveRoutes(state.routes);
+  syncRoutesToServer();
+  renderRouteSelect();
+  renderRoutesList();
+  render();
+}
+
+function showRouteFormError(msg) {
+  const el = $('routeFormError');
+  el.textContent = msg;
+  el.hidden = false;
+}
+
+function wireRoutesPanel() {
+  $('manageRoutesBtn').onclick = openRoutesModal;
+  $('routesModalClose').onclick = closeRoutesModal;
+  $('routesModal').addEventListener('click', (e) => {
+    if (e.target === $('routesModal')) closeRoutesModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !$('routesModal').hidden) closeRoutesModal();
+  });
+  $('newRouteBtn').onclick = () => openRouteForm(null);
+  $('routeSaveBtn').onclick = saveRouteFromForm;
+  $('routeCancelBtn').onclick = hideRouteForm;
+  $('routeSelect').onchange = () => {
+    state.activeRouteId = $('routeSelect').value || null;
+    saveActiveRouteId(state.activeRouteId);
+    render();
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Admin: edit bridges.json / gauges.json from the browser (no SSH/git needed)
 // ---------------------------------------------------------------------------
 
@@ -450,7 +725,7 @@ async function adminSaveData(kind, textareaId, statusId) {
   showStatus(statusId, 'Saving…');
   try {
     const body = await apiFetch(`/admin/data/${kind}`, { method: 'PUT', body: JSON.stringify(parsed) });
-    showStatus(statusId, `Saved ${body.count} entries — live on the site now.`);
+    showStatus(statusId, `Saved ${body.count} entries — live on the site now.${gitSyncSuffix(body.git)}`, body.git?.error != null);
     // Reflect the change immediately without a full reload.
     if (kind === 'bridges') state.bridges = await loadBridges();
     else state.gauges = await loadGauges();
@@ -458,6 +733,15 @@ async function adminSaveData(kind, textareaId, statusId) {
   } catch (e) {
     showStatus(statusId, `Couldn't save: ${e.message}`, true);
   }
+}
+
+// Appends a short note about whether the save also reached GitHub, based on
+// the `git` field the admin PUT endpoint returns (see gitSync.js).
+function gitSyncSuffix(git) {
+  if (!git || git.skipped) return ''; // auto-push not configured, or nothing changed -- nothing to say
+  if (git.error) return ` Push to GitHub failed: ${git.error} — saved locally on the VM only; git pull/push manually to sync.`;
+  if (git.pushed) return ' Pushed to GitHub.';
+  return '';
 }
 
 function wireAdminPanel() {
@@ -580,6 +864,7 @@ async function getStageForBridge(b) {
 
   if (live) {
     setCachedStage(cacheKey, live);
+    recordGaugeHistory(cacheKey, live.stageFt);
     return { ...live, stale: false };
   }
 
@@ -603,6 +888,7 @@ async function getStageForGauge(g) {
 
   if (live) {
     setCachedStage(g.id, live);
+    recordGaugeHistory(g.id, live.stageFt);
     return { ...live, stale: false };
   }
   const cached = getCachedStage(g.id);
@@ -691,6 +977,20 @@ function stageLabel(stage) {
   return stage.stale ? `${val} (stale)` : val;
 }
 
+// A small ▲/▼/▬ badge next to a stage reading based on getTrend() -- '' if
+// there's no eligible history sample yet, so a first-time visitor just sees
+// nothing extra rather than a placeholder.
+function trendBadge(stage) {
+  if (!stage) return '';
+  const trend = getTrend(stage.gaugeId, stage.stageFt);
+  if (!trend) return '';
+  const arrow = trend.dir === 'rising' ? '▲' : trend.dir === 'falling' ? '▼' : '▬';
+  const hours = trend.sinceMs / 3600000;
+  const since = hours < 1 ? `${Math.round(trend.sinceMs / 60000)}m` : `${hours.toFixed(1)}h`;
+  const title = `${fmt(Math.abs(trend.diffFt), 2)} ft ${trend.dir} over ~${since}`;
+  return ` <span class="trend trend-${trend.dir}" title="${title}">${arrow}</span>`;
+}
+
 function sourceLabel(b, stage) {
   const src = stage ? stage.source : '—';
   // stage.gaugeId is whichever ID actually produced the reading (may be the
@@ -758,7 +1058,7 @@ function renderCards(rows) {
       <div class="card-margin-label">${hasMargin ? `Margin for ${vessel.name} (${fmt(vessel.airDraftFt)}ft air draft)` : 'Margin for your vessel'}</div>
       <div class="card-clearance">${hasMargin ? `${fmt(margin)} ft` : '—'}</div>
       <div class="card-detail">
-        Bridge clearance ${clearance != null ? fmt(clearance) + ' ft' : '—'} · Ref ${b.reference_clearance_ft != null ? fmt(b.reference_clearance_ft) + ' ft' : '—'} · Stage ${stageLabel(stage)} · ${sourceLabel(b, stage)}
+        Bridge clearance ${clearance != null ? fmt(clearance) + ' ft' : '—'} · Ref ${b.reference_clearance_ft != null ? fmt(b.reference_clearance_ft) + ' ft' : '—'} · Stage ${stageLabel(stage)}${trendBadge(stage)} · ${sourceLabel(b, stage)}
       </div>
       ${b.notes ? `<div class="card-note">${b.notes}</div>` : ''}
     `;
@@ -776,7 +1076,7 @@ function renderGaugeList(rows) {
     row.innerHTML = `
       <span class="gauge-name">${g.name}</span>
       <span class="gauge-id">${g.id}</span>
-      <span class="gauge-stage">${stageLabel(stage)}</span>
+      <span class="gauge-stage">${stageLabel(stage)}${trendBadge(stage)}</span>
     `;
     wrap.appendChild(row);
   }
@@ -794,7 +1094,7 @@ function renderTable(rows) {
       fmt(b.river_mile, 1),
       b.type,
       b.reference_clearance_ft != null ? fmt(b.reference_clearance_ft) : '—',
-      stageLabel(stage),
+      stageLabel(stage) + trendBadge(stage),
       clearance != null ? fmt(clearance) : '—',
       margin != null ? `<strong>${fmt(margin)}</strong>` : '—',
       `<span class="status ${status.cls}">${status.label}</span>`,
@@ -859,6 +1159,13 @@ function renderGaugeMarkers(rows) {
 function applyFilters(bridges) {
   const river = $('riverSelect').value;
   let list = bridges.filter((b) => river === 'All' || b.river === river);
+  if (state.activeRouteId) {
+    const route = state.routes.find((r) => r.id === state.activeRouteId);
+    if (route) {
+      const idSet = new Set(route.bridgeIds);
+      list = list.filter((b) => idSet.has(b.id));
+    }
+  }
   list = [...list].sort((a, b) => (a.river_mile ?? 0) - (b.river_mile ?? 0));
   return list;
 }
@@ -993,9 +1300,14 @@ async function init() {
   ensureDefaultVessel();
   renderVesselList();
 
+  state.routes = loadRoutes();
+  state.activeRouteId = loadActiveRouteId();
+  renderRouteSelect();
+
   wireControls();
   wireAccountPanel();
   wireAdminPanel();
+  wireRoutesPanel();
   registerServiceWorker();
 
   handleAuthRedirectParams(); // ?verified=1 / ?verify_error=1 / ?reset_token=...

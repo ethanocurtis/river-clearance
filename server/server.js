@@ -12,6 +12,7 @@ const rateLimit = require('express-rate-limit');
 const db = require('./db');
 const mailer = require('./mailer');
 const auth = require('./auth');
+const gitSync = require('./gitSync');
 
 const PORT = process.env.PORT || 8787;
 const APP_BASE_URL = (process.env.APP_BASE_URL || '').replace(/\/+$/, '');
@@ -214,6 +215,30 @@ app.put('/api/vessels', apiLimiter, auth.requireAuth, (req, res) => {
   res.json(record);
 });
 
+app.get('/api/routes', apiLimiter, auth.requireAuth, (req, res) => {
+  const record = db.getRouteData(req.user.id);
+  res.json(record || { data: { routes: [], activeRouteId: null }, updatedAt: null });
+});
+
+app.put('/api/routes', apiLimiter, auth.requireAuth, (req, res) => {
+  const { routes, activeRouteId } = req.body || {};
+  if (!Array.isArray(routes)) return res.status(400).json({ error: '"routes" must be an array.' });
+  if (routes.length > 50) return res.status(400).json({ error: 'Too many routes (max 50).' });
+  for (const r of routes) {
+    if (typeof r?.id !== 'string' || typeof r?.name !== 'string' || r.name.length > 100) {
+      return res.status(400).json({ error: 'Each route needs a string id and name (<=100 chars).' });
+    }
+    if (!Array.isArray(r.bridgeIds) || r.bridgeIds.length > 200 || r.bridgeIds.some((id) => typeof id !== 'string')) {
+      return res.status(400).json({ error: 'Each route needs "bridgeIds" as an array of strings (max 200).' });
+    }
+  }
+  const record = db.saveRouteData(req.user.id, {
+    routes,
+    activeRouteId: typeof activeRouteId === 'string' ? activeRouteId : null,
+  });
+  res.json(record);
+});
+
 // ---------------------------------------------------------------------------
 // Admin: edit docs/data/bridges.json + gauges.json without git/SSH
 // ---------------------------------------------------------------------------
@@ -232,7 +257,7 @@ app.get('/api/admin/data/:file', auth.requireAdmin, (req, res) => {
   }
 });
 
-app.put('/api/admin/data/:file', auth.requireAdmin, (req, res) => {
+app.put('/api/admin/data/:file', auth.requireAdmin, async (req, res) => {
   const filename = ADMIN_FILES[req.params.file];
   if (!filename) return res.status(404).json({ error: 'Unknown data file.' });
   if (!DATA_DIR) return res.status(501).json({ error: 'Admin data editing requires DATA_DIR/STATIC_DIR to be configured (see README).' });
@@ -246,10 +271,22 @@ app.put('/api/admin/data/:file', auth.requireAdmin, (req, res) => {
   }
   try {
     fs.writeFileSync(path.join(DATA_DIR, filename), JSON.stringify(body, null, 2) + '\n');
-    res.json({ ok: true, count: body.length });
   } catch (err) {
-    res.status(500).json({ error: `Couldn't write ${filename}: ${err.message}` });
+    return res.status(500).json({ error: `Couldn't write ${filename}: ${err.message}` });
   }
+
+  // The file write already succeeded at this point either way -- git is a
+  // best-effort follow-up, reported back to the admin rather than silently
+  // swallowed, but never turns a real save into an error response.
+  let git;
+  try {
+    git = await gitSync.commitAndPush(`docs/data/${filename}`, `Update ${filename} via admin panel (${req.user.email})`);
+  } catch (err) {
+    console.error(`[gitSync] Failed to commit/push ${filename}:`, err.message);
+    git = { error: err.message };
+  }
+
+  res.json({ ok: true, count: body.length, git });
 });
 
 // ---------------------------------------------------------------------------
@@ -264,6 +301,9 @@ app.listen(PORT, () => {
   console.log(`river-clearance API listening on :${PORT}`);
   if (STATIC_DIR) console.log(`also serving static site from ${path.resolve(STATIC_DIR)}`);
   if (DATA_DIR) console.log(`admin data editing enabled: ${path.resolve(DATA_DIR)}`);
+  console.log(gitSync.enabled
+    ? 'admin edits will auto-commit + push to GitHub (REPO_DIR/GIT_PUSH_TOKEN set)'
+    : 'admin edits will NOT auto-push to GitHub (REPO_DIR/GIT_PUSH_TOKEN not set) -- file-only saves');
   if (!mailer.mailerConfigured) console.warn('SMTP not configured -- verification/reset emails will only be logged, not sent.');
   if (!APP_BASE_URL) console.warn('APP_BASE_URL not set -- verification/reset links will be broken (relative with no host). Set it in .env.');
 });

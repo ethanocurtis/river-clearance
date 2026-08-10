@@ -42,6 +42,12 @@ db.exec(`
     data TEXT NOT NULL,
     updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
   );
+
+  CREATE TABLE IF NOT EXISTS user_routes (
+    user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    data TEXT NOT NULL,
+    updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+  );
 `);
 
 // ---------------------------------------------------------------------------
@@ -150,6 +156,27 @@ function saveVesselData(userId, data) {
   return getVesselData(userId);
 }
 
+// ---------------------------------------------------------------------------
+// Routes (one JSON blob per user -- [{ id, name, bridgeIds: [...] }])
+// ---------------------------------------------------------------------------
+
+const getRoutesStmt = db.prepare(`SELECT data, updated_at FROM user_routes WHERE user_id = ?`);
+const upsertRoutesStmt = db.prepare(`
+  INSERT INTO user_routes (user_id, data, updated_at)
+  VALUES (?, ?, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+  ON CONFLICT(user_id) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at
+`);
+
+function getRouteData(userId) {
+  const row = getRoutesStmt.get(userId);
+  if (!row) return null;
+  return { data: JSON.parse(row.data), updatedAt: row.updated_at };
+}
+function saveRouteData(userId, data) {
+  upsertRoutesStmt.run(userId, JSON.stringify(data));
+  return getRouteData(userId);
+}
+
 module.exports = {
   createUser,
   getUserByEmail,
@@ -165,4 +192,6 @@ module.exports = {
   consumeEmailToken,
   getVesselData,
   saveVesselData,
+  getRouteData,
+  saveRouteData,
 };
