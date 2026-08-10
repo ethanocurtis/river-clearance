@@ -5,7 +5,7 @@
     "river": "Mississippi",
     "reach": "Upper Mississippi River",
     "river_mile": 583,
-    "mile_verified": true,
+    "mile_verified": false,
     "state": "IA/WI",
     "type": "fixed",
     "reference_clearance_ft": 65,
