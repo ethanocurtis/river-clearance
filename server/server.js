@@ -73,7 +73,13 @@ app.post('/api/auth/signup', authLimiter, async (req, res, next) => {
 
     const token = auth.issueEmailToken(user.id, 'verify');
     const verifyUrl = `${APP_BASE_URL}/api/auth/verify?token=${token}`;
-    await mailer.sendVerificationEmail(email, verifyUrl);
+    // Fire-and-forget: the account is already created at this point, and a
+    // slow/unreachable SMTP server shouldn't hang the signup request itself
+    // (mailer.js logs any failure). See "Resend verification email" for
+    // recovering an account whose first send failed.
+    mailer.sendVerificationEmail(email, verifyUrl).catch((err) => {
+      console.error(`[signup] Verification email failed for ${email}:`, err.message);
+    });
 
     res.status(201).json({ message: 'Account created. Check your email to verify it before logging in.' });
   } catch (err) {
@@ -109,6 +115,25 @@ app.post('/api/auth/login', authLimiter, async (req, res, next) => {
   }
 });
 
+app.post('/api/auth/resend-verification', authLimiter, async (req, res, next) => {
+  try {
+    const email = auth.normalizeEmail(req.body?.email);
+    const user = auth.isValidEmail(email) ? db.getUserByEmail(email) : null;
+    if (user && !user.email_verified) {
+      const token = auth.issueEmailToken(user.id, 'verify');
+      const verifyUrl = `${APP_BASE_URL}/api/auth/verify?token=${token}`;
+      mailer.sendVerificationEmail(email, verifyUrl).catch((err) => {
+        console.error(`[resend-verification] Failed for ${email}:`, err.message);
+      });
+    }
+    // Same generic response whether the account doesn't exist, is already
+    // verified, or the email is about to be sent -- don't leak account state.
+    res.json({ message: 'If that account needs verification, a new link has been sent.' });
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.post('/api/auth/logout', (req, res) => {
   const token = req.cookies?.[auth.SESSION_COOKIE];
   if (token) db.deleteSession(token);
@@ -128,7 +153,10 @@ app.post('/api/auth/request-password-reset', authLimiter, async (req, res, next)
     if (user) {
       const token = auth.issueEmailToken(user.id, 'reset');
       const resetUrl = `${APP_BASE_URL}/?reset_token=${token}`;
-      await mailer.sendPasswordResetEmail(email, resetUrl);
+      // Fire-and-forget, same reasoning as signup above.
+      mailer.sendPasswordResetEmail(email, resetUrl).catch((err) => {
+        console.error(`[request-password-reset] Email failed for ${email}:`, err.message);
+      });
     }
     // Same response whether or not the email exists -- don't leak which emails are registered.
     res.json({ message: 'If that email is registered, a reset link has been sent.' });

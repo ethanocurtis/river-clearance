@@ -14,7 +14,7 @@
 // query param a returning visitor can keep seeing old bridge data after a
 // push. Keep in sync with the ?v= on style.css/app.js in index.html and
 // CACHE_NAME in sw.js.
-const DATA_VERSION = '20260810c';
+const DATA_VERSION = '20260810d';
 
 const REFRESH_MS = 5 * 60 * 1000; // auto-refresh every 5 minutes
 const GAUGE_CACHE_KEY = 'gaugeCache';
@@ -298,6 +298,18 @@ async function doLogout() {
   closeAccountModal();
 }
 
+async function doResendVerification() {
+  const email = $('loginEmail').value.trim();
+  if (!email) return showStatus('accountStatus', 'Enter your email above first, then click resend.', true);
+  showStatus('accountStatus', 'Sending…');
+  try {
+    const body = await apiFetch('/auth/resend-verification', { method: 'POST', body: JSON.stringify({ email }) });
+    showStatus('accountStatus', body.message);
+  } catch (e) {
+    showStatus('accountStatus', e.message, true);
+  }
+}
+
 async function doForgotPassword() {
   const email = $('forgotEmail').value.trim();
   showStatus('accountStatus', 'Sending…');
@@ -337,6 +349,7 @@ function wireAccountPanel() {
   $('signupSubmit').onclick = doSignup;
   $('loginSubmit').onclick = doLogin;
   $('forgotSubmit').onclick = doForgotPassword;
+  $('resendVerification').onclick = doResendVerification;
   $('logoutBtn').onclick = doLogout;
 }
 

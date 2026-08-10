@@ -20,6 +20,13 @@ const transporter = configured
       port: SMTP_PORT,
       secure: SMTP_SECURE,
       auth: { user: SMTP_USER, pass: SMTP_PASS },
+      // Without these nodemailer's defaults (2 min connect, 2 min socket) make
+      // a bad host/port/firewall look identical to a slow send -- callers that
+      // await this (or a user watching a "Creating account..." button) would
+      // otherwise sit there for minutes before anything visibly fails.
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 20_000,
     })
   : null;
 
@@ -28,8 +35,15 @@ async function sendMail({ to, subject, text, html }) {
     console.warn(`[mailer] SMTP not configured -- would have sent to ${to}: ${subject}\n${text}`);
     return { sent: false };
   }
-  await transporter.sendMail({ from: MAIL_FROM, to, subject, text, html });
-  return { sent: true };
+  try {
+    await transporter.sendMail({ from: MAIL_FROM, to, subject, text, html });
+    return { sent: true };
+  } catch (err) {
+    // Callers no longer await this in the request path (see server.js), so
+    // this is often the only place a delivery failure gets logged at all.
+    console.error(`[mailer] Failed to send to ${to} ("${subject}"):`, err.message);
+    throw err;
+  }
 }
 
 function sendVerificationEmail(to, verifyUrl) {

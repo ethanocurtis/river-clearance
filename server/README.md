@@ -17,11 +17,20 @@ Can run two ways:
 ## What it does
 
 - `POST /api/auth/signup` — create an account (email + password). Sends a
-  verification email; the account can't log in until that's clicked.
+  verification email; the account can't log in until that's clicked. The
+  account is created and the response returned before the email finishes
+  sending (fire-and-forget) -- a slow/unreachable SMTP server won't hang
+  the signup request itself, it just logs a `[signup] Verification email
+  failed for ...` line if delivery fails. See "Resend verification email"
+  below for recovering an account whose first send didn't go through.
 - `GET  /api/auth/verify?token=...` — the emailed verification link. Marks
   the account verified, logs it in, redirects to `/?verified=1` (or
   `/?verify_error=1` on a bad/expired token).
 - `POST /api/auth/login` / `POST /api/auth/logout`
+- `POST /api/auth/resend-verification` — same anti-enumeration response as
+  password reset. Issues a fresh verify token/email for the account (the
+  previous one is invalidated), useful if the first signup email never
+  arrived (bad SMTP config, spam filter, etc.).
 - `GET  /api/auth/me` — current session's user, or 401.
 - `POST /api/auth/request-password-reset` — always responds the same
   message whether or not the email exists (doesn't leak registered emails).
