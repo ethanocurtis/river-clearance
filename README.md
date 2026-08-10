@@ -111,17 +111,20 @@ reference articles) instead. Each bridge entry carries:
 `reference_clearance_ft` against the current USACE Upper Mississippi River
 Navigation Charts or the bridge clearance calculator above.**
 
-**Update (2026-08-11):** six St. Louis-area bridges (mile 179–183 — Eads,
-MacArthur, Poplar Street, Martin Luther King, Stan Musial Veterans Memorial,
-McKinley) were re-sourced directly from the official USACE Upper Mississippi
-River Supplemental Charts (126A/126B, Mississippi Valley Division, 2020),
-supplied by the user. Three of the six secondary-source figures were wrong
+**Update (2026-08-11):** seven bridges have been re-sourced directly from
+the official USACE Upper Mississippi River Supplemental Charts (Mississippi
+Valley Division, 2020), supplied by the user — six St. Louis-area bridges
+(mile 179–183 — Eads, MacArthur, Poplar Street, Martin Luther King, Stan
+Musial Veterans Memorial, McKinley; charts 126A/126B) plus Clark Bridge at
+Alton (mile 202.4; chart 123A). Several secondary-source figures were wrong
 enough to matter: Stan Musial (75 ft listed, actually 92.4 ft — understated
 by 17.4 ft), MacArthur (108 ft listed, actually 103.5 ft — overstated by
-4.5 ft), and McKinley (90 ft listed, actually 85.4 ft — overstated by
-4.6 ft). Every other bridge on the site is still sourced the way this whole
-section describes — search-result summaries, not the official chart book —
-and still needs the same verify-before-use treatment.
+4.5 ft), McKinley (90 ft listed, actually 85.4 ft — overstated by 4.6 ft),
+and Clark Bridge (65 ft listed, actually 66.36 ft — understated by 1.4 ft,
+plus its river mile corrected from 201 to 202.4). Every other bridge on the
+site is still sourced the way this whole section describes — search-result
+summaries, not the official chart book — and still needs the same
+verify-before-use treatment.
 
 A few entries got extra scrutiny and are called out explicitly in their
 `source_note`:
