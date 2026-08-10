@@ -49,6 +49,34 @@ body {
   text-align: center;
 }
 
+.loading-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--bg-raised);
+  color: var(--text-dim);
+  padding: 8px 16px;
+  font-size: 13px;
+  text-align: center;
+}
+
+.loading-banner[hidden] { display: none; }
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border: 2px solid var(--border);
+  border-top-color: #4f7cf0;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* ---------- Header ---------- */
 
 header {
@@ -190,6 +218,7 @@ input, select, button {
 
 button { cursor: pointer; }
 button:active { transform: translateY(1px); }
+button:disabled { opacity: 0.6; cursor: default; transform: none; }
 
 .last-updated { color: var(--text-dim); font-size: 12px; }
 

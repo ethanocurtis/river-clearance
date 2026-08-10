@@ -14,7 +14,7 @@
 // query param a returning visitor can keep seeing old bridge data after a
 // push. Keep in sync with the ?v= on style.css/app.js in index.html and
 // CACHE_NAME in sw.js.
-const DATA_VERSION = '20260810d';
+const DATA_VERSION = '20260810e';
 
 const REFRESH_MS = 5 * 60 * 1000; // auto-refresh every 5 minutes
 const GAUGE_CACHE_KEY = 'gaugeCache';
@@ -701,9 +701,13 @@ function sourceLabel(b, stage) {
   return id ? `${src}/${id}` : src;
 }
 
+// Fetches every bridge's stage concurrently rather than one at a time --
+// with 40+ bridges each waiting on a network round trip, a sequential await
+// loop here was the actual reason a first load could take minutes.
+// memoGetStageNWPS still dedupes bridges/gauges that share a gauge ID even
+// when their fetches overlap like this (see its comment above).
 async function computeRows(bridges, vessel) {
-  const rows = [];
-  for (const b of bridges) {
+  return Promise.all(bridges.map(async (b) => {
     const stage = await getStageForBridge(b);
     const clearance = (stage && b.reference_clearance_ft != null) ? computeClearance(b, stage.stageFt) : null;
     const st = statusFor(b, clearance, vessel.airDraftFt, vessel.marginFt ?? 2);
@@ -712,17 +716,15 @@ async function computeRows(bridges, vessel) {
     // the number that actually answers "can I get under this" — the raw
     // `clearance` above is just the bridge's own number, same for everyone.
     const margin = clearance != null ? clearance - vessel.airDraftFt : null;
-    rows.push({ bridge: b, stage, clearance, margin, status: st, vessel });
-  }
-  return rows;
+    return { bridge: b, stage, clearance, margin, status: st, vessel };
+  }));
 }
 
 async function computeGaugeRows(gauges) {
-  const rows = [];
-  for (const g of gauges) {
+  const rows = await Promise.all(gauges.map(async (g) => {
     const stage = await getStageForGauge(g);
-    rows.push({ gauge: g, stage });
-  }
+    return { gauge: g, stage };
+  }));
   return [...rows].sort((a, b) => (b.gauge.lat ?? 0) - (a.gauge.lat ?? 0)); // north to south
 }
 
@@ -864,28 +866,43 @@ function applyFilters(bridges) {
 async function render() {
   nwpsFetchMemo = new Map(); // fresh per render so bridges + gauges sharing a gauge ID fetch it once
 
-  const vessel = activeVessel();
-  const bridges = applyFilters(state.bridges);
+  setLoading(true);
+  try {
+    const vessel = activeVessel();
+    const bridges = applyFilters(state.bridges);
 
-  const [rows, gaugeRows] = await Promise.all([
-    computeRows(bridges, vessel),
-    computeGaugeRows(state.gauges),
-  ]);
-  state.lastRenderRows = rows;
+    const [rows, gaugeRows] = await Promise.all([
+      computeRows(bridges, vessel),
+      computeGaugeRows(state.gauges),
+    ]);
+    state.lastRenderRows = rows;
 
-  let visibleRows = rows;
-  if ($('onlyConcerning').checked) {
-    visibleRows = rows.filter((r) => r.status.cls === 'blocked' || r.status.cls === 'marginal');
+    let visibleRows = rows;
+    if ($('onlyConcerning').checked) {
+      visibleRows = rows.filter((r) => r.status.cls === 'blocked' || r.status.cls === 'marginal');
+    }
+
+    renderAlertBanner(state.lastRenderRows);
+    renderCards(visibleRows);
+    renderTable(visibleRows);
+    renderMarkers(visibleRows);
+    renderGaugeList(gaugeRows);
+    renderGaugeMarkers(gaugeRows);
+
+    $('lastUpdated').textContent = `Last updated ${new Date().toLocaleTimeString()}`;
+  } finally {
+    setLoading(false);
   }
+}
 
-  renderAlertBanner(state.lastRenderRows);
-  renderCards(visibleRows);
-  renderTable(visibleRows);
-  renderMarkers(visibleRows);
-  renderGaugeList(gaugeRows);
-  renderGaugeMarkers(gaugeRows);
-
-  $('lastUpdated').textContent = `Last updated ${new Date().toLocaleTimeString()}`;
+// Fetching 40+ bridges' and 30+ gauges' live stage can take a while even
+// running concurrently (NWPS/USGS themselves aren't instant) -- without this
+// a first-time visitor watching a blank bridge list has no way to tell that
+// from the site being broken.
+function setLoading(isLoading) {
+  $('loadingBanner').hidden = !isLoading;
+  $('refresh').disabled = isLoading;
+  $('refresh').textContent = isLoading ? 'Refreshing…' : 'Refresh Stages';
 }
 
 // ---------------------------------------------------------------------------
