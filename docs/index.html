@@ -7,7 +7,7 @@
   <title>Upper Mississippi Bridge Clearance</title>
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <link rel="stylesheet" href="./style.css?v=20260811b" />
+  <link rel="stylesheet" href="./style.css?v=20260811c" />
 </head>
 <body>
   <div id="alertBanner" class="alert-banner" hidden></div>
@@ -268,7 +268,35 @@
     </div>
   </div>
 
+  <div id="welcomeModal" class="modal-overlay" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="welcomeModalTitle">
+      <div class="modal-header">
+        <h3 id="welcomeModalTitle">Before you start</h3>
+        <button id="welcomeModalClose" class="modal-close" type="button" aria-label="Close">&times;</button>
+      </div>
+
+      <p class="sync-note">
+        <strong>NOT FOR NAVIGATION — informational only.</strong> Bridge
+        clearance figures were compiled from public secondary sources and
+        have <strong>not</strong> been cross-checked against the current
+        USACE chart book or bridge owner permits. Verify every figure
+        before using it operationally.
+      </p>
+
+      <p id="welcomeLoginNote" class="sync-note" hidden>
+        Not logged in yet? Log in (or create a free account) to save your
+        vessels and routes across devices — otherwise they only stay on
+        this browser.
+      </p>
+
+      <div class="welcome-actions">
+        <button id="welcomeLoginBtn" type="button" hidden>Log in / Sign up</button>
+        <button id="welcomeDismissBtn" type="button">Got it</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="./app.js?v=20260811b"></script>
+  <script src="./app.js?v=20260811c"></script>
 </body>
 </html>

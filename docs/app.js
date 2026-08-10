@@ -14,7 +14,7 @@
 // query param a returning visitor can keep seeing old bridge data after a
 // push. Keep in sync with the ?v= on style.css/app.js in index.html and
 // CACHE_NAME in sw.js.
-const DATA_VERSION = '20260811b';
+const DATA_VERSION = '20260811c';
 
 const REFRESH_MS = 5 * 60 * 1000; // auto-refresh every 5 minutes
 const GAUGE_CACHE_KEY = 'gaugeCache';
@@ -309,6 +309,42 @@ function closeAccountModal() {
   $('accountModal').hidden = true;
 }
 
+// ---------------------------------------------------------------------------
+// Welcome modal: NOT FOR NAVIGATION disclaimer + a nudge to log in so
+// vessels/routes save across devices, shown once per browser. Skipped if a
+// verify/reset link already opened the account modal on this same load, so
+// two modals don't stack.
+// ---------------------------------------------------------------------------
+
+const WELCOME_SEEN_KEY = 'welcomeSeen';
+
+function showWelcomeModalIfNeeded() {
+  if (localStorage.getItem(WELCOME_SEEN_KEY)) return;
+  $('welcomeLoginNote').hidden = Boolean(state.user);
+  $('welcomeLoginBtn').hidden = Boolean(state.user);
+  $('welcomeModal').hidden = false;
+}
+
+function dismissWelcomeModal() {
+  localStorage.setItem(WELCOME_SEEN_KEY, '1');
+  $('welcomeModal').hidden = true;
+}
+
+function wireWelcomeModal() {
+  $('welcomeModalClose').onclick = dismissWelcomeModal;
+  $('welcomeDismissBtn').onclick = dismissWelcomeModal;
+  $('welcomeLoginBtn').onclick = () => {
+    dismissWelcomeModal();
+    openAccountModal();
+  };
+  $('welcomeModal').addEventListener('click', (e) => {
+    if (e.target === $('welcomeModal')) dismissWelcomeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !$('welcomeModal').hidden) dismissWelcomeModal();
+  });
+}
+
 function applyLoggedInUI(user) {
   state.user = user;
   $('accountLoggedOut').hidden = true;
@@ -449,9 +485,10 @@ function handleAuthRedirectParams() {
     showAccountForm('resetForm');
     $('resetSubmit').onclick = () => doResetPassword(token);
   } else {
-    return;
+    return false;
   }
   history.replaceState({}, '', location.pathname);
+  return true; // caller can skip opening any other modal (e.g. the welcome one) on top of this
 }
 
 // ---------------------------------------------------------------------------
@@ -1308,10 +1345,12 @@ async function init() {
   wireAccountPanel();
   wireAdminPanel();
   wireRoutesPanel();
+  wireWelcomeModal();
   registerServiceWorker();
 
-  handleAuthRedirectParams(); // ?verified=1 / ?verify_error=1 / ?reset_token=...
+  const handledAuthRedirect = handleAuthRedirectParams(); // ?verified=1 / ?verify_error=1 / ?reset_token=...
   await checkAuthStatus(); // may load vessels from the account, overriding the local defaults above
+  if (!handledAuthRedirect) showWelcomeModalIfNeeded(); // don't stack on top of the account modal above
 
   [state.bridges, state.gauges] = await Promise.all([loadBridges(), loadGauges()]);
   await render();
