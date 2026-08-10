@@ -134,10 +134,23 @@ comparing the live site's stage reading against both of USACE's separate
 Upper/Lower RiverGages pages, which differed by ~17 ft at the same moment.
 Clark Bridge's live gauge is disabled (`null`) until the correct upper-pool
 NWPS/USGS id is identified — it now correctly shows "Stage unavailable"
-rather than a clearance number computed against the wrong pool. Worth
-keeping in mind for any other bridge sitting right at a lock: the
-upper/lower distinction matters and secondary sources don't always get it
-right (this one didn't either — see `alni2`'s own gauges.json entry).
+rather than a clearance number computed against the wrong pool. (Checked
+NOAA's own gauge map directly: there's no separate upper-pool product at
+all for Mel Price L&D, only the tailwater one — a live reading here would
+need a direct RiverGages.com integration, which this site doesn't have.)
+
+Following that same check across the other lock-adjacent bridges caught
+two more: **Government Bridge** and **I-74/Iowa–Illinois Memorial Bridge**,
+both sitting upstream of Lock & Dam 15, were both using `rcki2` — confirmed
+live (all five rcki2-linked bridges read the same 5.05 ft) to be L&D 15's
+tailwater stage, not the ~18 ft pool level upstream bridges actually need.
+Both overstated clearance by roughly 13 ft as a result and have had their
+live gauge disabled the same way. The three rcki2-linked bridges
+*downstream* of the dam (Rock Island Centennial, Crescent Rail, I-280/Baker)
+are correctly paired with it and were left alone. Worth keeping in mind for
+any other bridge sitting right at a lock: the upper/lower distinction
+matters and secondary sources don't always get it right (neither of these
+did — see `alni2`'s and `rcki2`'s own gauges.json entries).
 
 A few entries got extra scrutiny and are called out explicitly in their
 `source_note`:
