@@ -17,7 +17,8 @@
     "lon": -90.65611,
     "source_note": "Clearance figure from public secondary source (bridge reference article), not cross-checked against current USACE chart book or bridge owner permit. usgs_site_no 05414700 is 'Mississippi River at Dubuque, IA' per USGS Water Data for the Nation, added as a fallback since the NWPS gauge wasn't returning data reliably. Coordinates from the bridge's Wikipedia infobox (2026-08-09), replacing an earlier rough estimate.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-483-CENTENNIAL",
@@ -37,7 +38,8 @@
     "lon": -90.58167,
     "source_note": "Clearance figure from public secondary source (bridge reference article), not cross-checked against current USACE chart book or bridge owner permit. usgs_site_no 413104090334301 ('Mississippi River at Lock & Dam 15 (Corps)') is a lower-confidence match than the other fallback gauges \u2014 added as a best-effort fallback since the NWPS gauge wasn't returning data reliably; verify it actually reports gage height (parameter 00065) before trusting it. Coordinates from the bridge's Wikipedia infobox (2026-08-09), replacing an earlier rough estimate.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-483-GOVERNMENT-BRIDGE",
@@ -57,7 +59,8 @@
     "lon": -90.56694,
     "source_note": "Swing-span bridge co-located with Lock & Dam 15; opens on signal for tow traffic. The 64.7 ft figure's open/closed state hasn't been confirmed. CORRECTION (2026-08-11): initially disabled on the assumption this bridge (sitting right next to the dam) needed the ~18 ft upper-pool reading, same issue as I-74 Memorial nearby -- but the company cross-check tool explicitly labels this bridge ('Rock Island RR & Highway') as using 'Lock 15 Lower', confirming it actually needs the tailwater reading rcki2 already provides. Re-enabled. (I-74 Memorial, by contrast, IS explicitly labeled 'Lock 15 Upper' in that same tool and stays disabled -- see its own entry.)",
     "last_checked": "2026-08-11",
-    "notes": "Movable span -- confirm bridge is open/closed state and contact the bridge operator directly before relying on this figure."
+    "notes": "Movable span -- confirm bridge is open/closed state and contact the bridge operator directly before relying on this figure.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-520-NORTH-CLINTON-GATEWAY",
@@ -77,7 +80,8 @@
     "lon": -90.18389,
     "source_note": "Clearance figure (65.0 ft at flat pool, river mile 520.0) from public secondary source referencing navigation chart data, not independently cross-checked against the current USACE chart book. Coordinates from the bridge's Wikipedia infobox (2026-08-09), replacing an earlier rough estimate.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-698-CASS-STREET",
@@ -97,7 +101,8 @@
     "lon": -91.25944,
     "source_note": "Clearance figure from public secondary source (bridge reference article), not cross-checked against current USACE chart book or bridge owner permit. Note: no longer carries vehicle traffic (pedestrian/bicycle use) but still a fixed overhead structure. Coordinates from Wikipedia infobox (2026-08-09) for the twin-span 'Mississippi River Bridge' complex (Cass Street + Cameron Avenue are immediately parallel structures sharing one indexed location); offset a hair from the Cameron Avenue entry below purely so both markers are visible on the map.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "flagged"
   },
   {
     "id": "UMR-699-CAMERON-AVE-I90",
@@ -117,7 +122,8 @@
     "lon": -91.25944,
     "source_note": "Clearance figure from public secondary source (bridge reference article), not cross-checked against current USACE chart book or bridge owner permit. Coordinates from Wikipedia infobox (2026-08-09) for the twin-span 'Mississippi River Bridge' complex (Cass Street + Cameron Avenue are immediately parallel structures sharing one indexed location); offset a hair from the Cass Street entry above purely so both markers are visible on the map.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "flagged"
   },
   {
     "id": "UMR-697-LACROSSE-RAIL",
@@ -137,7 +143,8 @@
     "lon": -91.2813,
     "source_note": "21.9 ft figure is for the closed span, from a public secondary source. Bridge opens on signal for tow traffic \u2014 treat the closed-span figure as a worst case, not the usual clearance. Correction (2026-08-09): operated by Canadian Pacific, not BNSF as originally listed here; also crosses between La Crescent, MN and La Crosse, WI at a notably different spot than the Cass St/Cameron Ave road bridges, not right next to them \u2014 earlier coordinates were wrong on this point specifically, not just imprecise. Fixed using the bridge's Wikipedia infobox.",
     "last_checked": "2026-08-09",
-    "notes": "Confirm bridge is open before transiting if air draft exceeds closed-span clearance."
+    "notes": "Confirm bridge is open before transiting if air draft exceeds closed-span clearance.",
+    "verification": null
   },
   {
     "id": "UMR-728-WINONA-MAIN-CHANNEL",
@@ -157,7 +164,8 @@
     "lon": -91.63986,
     "source_note": "Carries MN 43, not US 14/61 (corrected earlier). Vertical clearance figure available for this specific main-channel span (as opposed to the separate, non-navigable North Channel span); not yet cross-checked against the current USACE chart book.",
     "last_checked": "2026-08-11",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-180-EADS",
@@ -177,7 +185,8 @@
     "lon": -90.17139,
     "source_note": "USACE Upper Mississippi River Supplemental Chart No. 126B (2020), Mississippi Valley Division. Reference gage: St. Louis, RM 179.6. Elevation, low steel: 468.18' -- elevation, gage zero: 379.58' -- vertical clearance above zero on gage = 88.6 ft.",
     "last_checked": "2026-08-11",
-    "notes": "Confirmed against the official USACE chart."
+    "notes": "Confirmed against the official USACE chart.",
+    "verification": "chart"
   },
   {
     "id": "UMR-179-MACARTHUR",
@@ -197,7 +206,8 @@
     "lon": -90.18361,
     "source_note": "USACE Upper Mississippi River Supplemental Chart No. 126B (2020), Mississippi Valley Division. Reference gage: St. Louis, RM 179.6. Elevation, low steel: 483.08' -- elevation, gage zero: 379.58' -- vertical clearance above zero on gage = 103.5 ft. Corrects an earlier secondary-source figure of 108 ft, which overstated clearance.",
     "last_checked": "2026-08-11",
-    "notes": "Confirmed against the official USACE chart. Previous figure (108 ft) overstated clearance by 4.5 ft."
+    "notes": "Confirmed against the official USACE chart. Previous figure (108 ft) overstated clearance by 4.5 ft.",
+    "verification": "chart"
   },
   {
     "id": "UMR-180-POPLAR-STREET",
@@ -217,7 +227,8 @@
     "lon": -90.18306,
     "source_note": "USACE Upper Mississippi River Supplemental Chart No. 126B (2020), Mississippi Valley Division. Reference gage: St. Louis, RM 179.6. Elevation, low steel: 476.78' -- elevation, gage zero: 379.58' -- vertical clearance above zero on gage = 97.2 ft. Corrects an earlier secondary-source figure of 92 ft (understated clearance).",
     "last_checked": "2026-08-11",
-    "notes": "Confirmed against the official USACE chart."
+    "notes": "Confirmed against the official USACE chart.",
+    "verification": "chart"
   },
   {
     "id": "UMR-180-MLK",
@@ -237,7 +248,8 @@
     "lon": -90.17944,
     "source_note": "USACE Upper Mississippi River Supplemental Chart No. 126A (2020), Mississippi Valley Division. Reference gage: St. Louis, RM 179.6. Elevation, low steel: 475.98' -- elevation, gage zero: 379.58' -- vertical clearance above zero on gage = 96.4 ft. Corrects an earlier secondary-source figure of 98 ft, which overstated clearance.",
     "last_checked": "2026-08-11",
-    "notes": "Confirmed against the official USACE chart. Previous figure (98 ft) overstated clearance by 1.6 ft."
+    "notes": "Confirmed against the official USACE chart. Previous figure (98 ft) overstated clearance by 1.6 ft.",
+    "verification": "chart"
   },
   {
     "id": "UMR-181-STAN-MUSIAL",
@@ -257,7 +269,8 @@
     "lon": -90.17833,
     "source_note": "USACE Upper Mississippi River Supplemental Chart No. 126A (2020), Mississippi Valley Division. Reference gage: St. Louis, RM 179.6. Elevation, low steel: 471.98' -- elevation, gage zero: 379.58' -- vertical clearance above zero on gage = 92.4 ft. Corrects an earlier secondary-source figure of 75 ft, which significantly understated clearance -- this was the largest discrepancy found in the company-tool cross-check.",
     "last_checked": "2026-08-11",
-    "notes": "Confirmed against the official USACE chart. Previous figure (75 ft) understated clearance by 17.4 ft."
+    "notes": "Confirmed against the official USACE chart. Previous figure (75 ft) understated clearance by 17.4 ft.",
+    "verification": "chart"
   },
   {
     "id": "UMR-183-MCKINLEY",
@@ -277,7 +290,8 @@
     "lon": -90.18278,
     "source_note": "USACE Upper Mississippi River Supplemental Chart No. 126A (2020), Mississippi Valley Division. Reference gage: St. Louis, RM 179.6. Elevation, low steel: 464.98' -- elevation, gage zero: 379.58' -- vertical clearance above zero on gage = 85.4 ft. Corrects an earlier secondary-source figure of 90 ft, which overstated clearance.",
     "last_checked": "2026-08-11",
-    "notes": "Confirmed against the official USACE chart. Previous figure (90 ft) overstated clearance by 4.6 ft."
+    "notes": "Confirmed against the official USACE chart. Previous figure (90 ft) overstated clearance by 4.6 ft.",
+    "verification": "chart"
   },
   {
     "id": "UMR-183-MERCHANTS",
@@ -297,7 +311,8 @@
     "lon": -90.18611,
     "source_note": "Clearance figure from public secondary source (bridge reference article), not cross-checked against current USACE chart book or bridge owner permit. Rail bridge (BNSF/Terminal Railroad Association); rebuilt 2018-2022, raising vertical clearance from the original ~50 ft. Coordinates from Wikipedia infobox (2026-08-09) \u2014 this and McKinley Bridge were noticeably off (~1-1.5km south of the real crossing) in the original estimate, per user report.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-190-CHAIN-OF-ROCKS-CANAL",
@@ -317,7 +332,8 @@
     "lon": -90.1381,
     "source_note": "One-lane road bridge over the Chain of Rocks Canal (the ~8.4mi bypass channel most tow traffic actually uses past the Chain of Rocks shoal) -- distinct from the old Route 66 Chain of Rocks Bridge, which is pedestrian/bike-only and crosses the natural river channel, not the canal. This figure comes from a Lock 27 upper-pool-referenced reading rather than a standard river gauge -- no matching NWPS/USGS gauge was found to drive live clearance math, so this bridge will show 'Stage unavailable' for the live-computed number until a suitable gauge is identified; treat this reference figure as approximate.",
     "last_checked": "2026-08-11",
-    "notes": "VERIFY before operational use. No live gauge currently assigned -- see source_note."
+    "notes": "VERIFY before operational use. No live gauge currently assigned -- see source_note.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-310-MARK-TWAIN",
@@ -337,7 +353,8 @@
     "lon": -91.35833,
     "source_note": "Clearance figure from public secondary source (bridge reference article), not cross-checked against current USACE chart book or bridge owner permit. Current bridge completed 2000, replacing a 1936 structure that had far less vertical clearance.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-282-CHAMP-CLARK",
@@ -357,7 +374,8 @@
     "lon": -91.04778,
     "source_note": "New bridge opened 2019, replacing the 1928 original (which had only 14.7 ft clearance -- do not use that figure, it's obsolete). Note: a '405 ft of navigation clearance' figure that also turns up for this bridge is HORIZONTAL channel width per the Coast Guard permit, not vertical clearance -- do not use it as such.",
     "last_checked": "2026-08-11",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-201-CLARK-ALTON",
@@ -377,7 +395,8 @@
     "lon": -90.17889,
     "source_note": "USACE Upper Mississippi River Supplemental Chart No. 123A (2020), Mississippi Valley Division. Reference gage: Mel Price Upper Gage, RM 201.1. Elevation, low steel: 485.36' -- elevation, gage zero: 395.48' -- vertical clearance above zero on gage = 66.36 ft. Officially named Clark Highway Bridge on the chart (Coast Guard Light List No. 16240); just upstream of Melvin Price Lock & Dam, opened 1994. Corrects an earlier secondary-source figure of 65 ft (understated by 1.36 ft) and river mile (was 201, chart gives 202.40). CORRECTION (2026-08-11): the previously-assigned alni2 gauge was confirmed live (site showed 6.38 ft, matching USACE RiverGages' Mel Price L&D LOWER gauge, not the UPPER gauge this reference figure requires per the chart's own 'Mel Price Upper Gage, RM 201.1' citation -- Upper read 23.30 ft at the same moment, a ~17 ft difference). Live gauge disabled rather than compute against the wrong pool. Confirmed on NOAA's own gauge map: no separate Upper-pool product exists there at all -- only the Lower/tailwater gauge (alni2) is published to NWPS. A live reading for this bridge would need a direct integration with USACE's RiverGages.com (a different, non-NWPS/USGS data source), which this site doesn't have.",
     "last_checked": "2026-08-11",
-    "notes": "Confirmed against the official USACE chart, but no live gauge is currently assigned -- see source_note. Shows \"Stage unavailable\" until the correct upper-pool gauge is identified."
+    "notes": "Confirmed against the official USACE chart, but no live gauge is currently assigned -- see source_note. Shows \"Stage unavailable\" until the correct upper-pool gauge is identified.",
+    "verification": "chart"
   },
   {
     "id": "UMR-325-BAYVIEW",
@@ -397,7 +416,8 @@
     "lon": -91.42139,
     "source_note": "Clearance figure from public secondary source, not cross-checked against current USACE chart book or bridge owner permit. All three Quincy-area bridges (Bayview, Quincy Memorial, Quincy Rail) independently return the same 63 ft figure across multiple sources \u2014 re-checked specifically because that seemed too coincidental at first. Most likely genuine: all three cross the same reach within about a mile of each other, and USACE/Coast Guard permits typically hold a river reach to one minimum navigational clearance regardless of which structure crosses it, so later bridges built at an already-permitted crossing commonly match the existing minimum rather than getting a fresh number.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-324-QUINCY-MEMORIAL",
@@ -417,7 +437,8 @@
     "lon": -91.42056,
     "source_note": "Clearance figure from public secondary source, not cross-checked against current USACE chart book or bridge owner permit. Shares the same 63 ft figure as Bayview and Quincy Rail Bridge \u2014 see Bayview's source_note for why that's most likely genuine rather than a data error. A separate MoDOT figure of 14 ft 3 in for this bridge is a different kind of measurement (a roadway/vehicle clearance elsewhere on the structure, not the navigational clearance over water) \u2014 not a real conflict once you know that, just two different specs. Built 1928.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-326-QUINCY-RAIL",
@@ -437,7 +458,8 @@
     "lon": -91.43083,
     "source_note": "Clearance figure from public secondary source, not cross-checked against current USACE chart book or bridge owner permit. Shares the same 63 ft figure as Bayview and Quincy Memorial Bridge \u2014 see Bayview's source_note for why that's most likely genuine rather than a data error.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-364-KEOKUK-HAMILTON",
@@ -457,7 +479,8 @@
     "lon": -91.37333,
     "source_note": "Vertical clearance figure available; not yet cross-checked against the current USACE chart book.",
     "last_checked": "2026-08-11",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-364-KEOKUK-RAIL",
@@ -477,7 +500,8 @@
     "lon": -91.37333,
     "source_note": "Double-deck rail + highway swing bridge. Clearance figure from public secondary source, not cross-checked against current USACE chart book.",
     "last_checked": "2026-08-09",
-    "notes": "Confirm bridge is open before transiting if air draft exceeds closed-span clearance."
+    "notes": "Confirm bridge is open before transiting if air draft exceeds closed-span clearance.",
+    "verification": null
   },
   {
     "id": "UMR-384-FORT-MADISON",
@@ -497,7 +521,8 @@
     "lon": -91.29583,
     "source_note": "River mile (383.9) given directly by source. A '14 ft 4 in' figure that appears in some listings is a vehicle height limit for the upper roadway deck, NOT clearance over water; do not use it as such. The 78.6 ft figure's open/closed state hasn't been confirmed.",
     "last_checked": "2026-08-11",
-    "notes": "Movable span -- confirm bridge is open/closed state and contact the bridge operator directly before relying on this figure."
+    "notes": "Movable span -- confirm bridge is open/closed state and contact the bridge operator directly before relying on this figure.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-408-GREAT-RIVER",
@@ -517,7 +542,8 @@
     "lon": -91.09556,
     "source_note": "Clearance figure from public secondary source, not cross-checked against current USACE chart book or bridge owner permit. Cable-stayed, opened 1993.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-408-BURLINGTON-RAIL",
@@ -537,7 +563,8 @@
     "lon": -91.09194,
     "source_note": "Vertical-lift bridge (opened 2010, replacing an 1868 swing bridge at the same site). 19.5 ft when down/closed; 44.1 ft when raised. Treat the closed-span figure as a worst case, not the usual clearance.",
     "last_checked": "2026-08-09",
-    "notes": "Confirm bridge is open before transiting if air draft exceeds closed-span clearance."
+    "notes": "Confirm bridge is open before transiting if air draft exceeds closed-span clearance.",
+    "verification": null
   },
   {
     "id": "UMR-479-I280-BAKER",
@@ -557,7 +584,8 @@
     "lon": -90.63222,
     "source_note": "Vertical clearance figure available; not yet cross-checked against the current USACE chart book.",
     "last_checked": "2026-08-11",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-482-CRESCENT-RAIL",
@@ -577,7 +605,8 @@
     "lon": -90.59472,
     "source_note": "Opened 1899, just downriver of the Centennial Bridge. The 74.5 ft figure's open/closed state hasn't been confirmed.",
     "last_checked": "2026-08-11",
-    "notes": "Movable span -- confirm bridge is open/closed state and contact the bridge operator directly before relying on this figure."
+    "notes": "Movable span -- confirm bridge is open/closed state and contact the bridge operator directly before relying on this figure.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-484-I74-MEMORIAL",
@@ -597,7 +626,8 @@
     "lon": -90.51056,
     "source_note": "New twin arch spans opened 2020/2021. Reference figure (65.3 ft) is from a company cross-check tool, not the official USACE chart. This bridge sits in Pool 15 (between Lock & Dam 15 and Lock & Dam 14) and needs that pool's ~18 ft upper-pool reading -- confirmed via the company tool ('Lock 15 Upper') -- but NWPS doesn't publish a dedicated upper-pool gauge for L&D 15 (checked directly on NOAA's own gauge map). Using leci4 (Le Claire, near L&D 14) instead: Le Claire is where Pool 15 ends upstream, so it reads water in the same controlled pool as this bridge, not a different one -- a reasonable proxy, not a station-specific match. Treat the live number here as approximate.",
     "last_checked": "2026-08-11",
-    "notes": "VERIFY before operational use -- reference figure is from a company cross-check tool, not the official USACE chart. Live gauge is a same-pool proxy (leci4, ~10 miles away), not station-specific -- see source_note."
+    "notes": "VERIFY before operational use -- reference figure is from a company cross-check tool, not the official USACE chart. Live gauge is a same-pool proxy (leci4, ~10 miles away), not station-specific -- see source_note.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-520-CLINTON-RAIL",
@@ -617,7 +647,8 @@
     "lon": -90.18472,
     "source_note": "Clearance figure from public secondary source, not cross-checked against current USACE chart book. Carries double rail track between Clinton, IA and Fulton, IL.",
     "last_checked": "2026-08-09",
-    "notes": "Confirm bridge is open before transiting if air draft exceeds closed-span clearance."
+    "notes": "Confirm bridge is open before transiting if air draft exceeds closed-span clearance.",
+    "verification": null
   },
   {
     "id": "UMR-583-DUBUQUE-RAIL",
@@ -637,7 +668,8 @@
     "lon": -90.65028,
     "source_note": "Clearance figure from public secondary source, not cross-checked against current USACE chart book. Opened 1868; single track between Dubuque, IA and East Dubuque, IL.",
     "last_checked": "2026-08-09",
-    "notes": "Confirm bridge is open before transiting if air draft exceeds closed-span clearance."
+    "notes": "Confirm bridge is open before transiting if air draft exceeds closed-span clearance.",
+    "verification": null
   },
   {
     "id": "UMR-634-MARQUETTE-JOLIET",
@@ -657,7 +689,8 @@
     "lon": -91.17583,
     "source_note": "A figure of 28.58 ft was found earlier but looked suspiciously low for a fixed highway bridge over the main navigation channel and wasn't used -- see prior notes. 60 ft is more consistent with comparable fixed highway spans on this stretch; not yet cross-checked against the current USACE chart book.",
     "last_checked": "2026-08-11",
-    "notes": "VERIFY before operational use. Earlier 28.58 ft figure was rejected as implausible."
+    "notes": "VERIFY before operational use. Earlier 28.58 ft figure was rejected as implausible.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-760-WABASHA-NELSON",
@@ -677,7 +710,8 @@
     "lon": -92.03236,
     "source_note": "Clearance figure from public secondary source, not cross-checked against current USACE chart book or bridge owner permit. Opened 1988.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-792-EISENHOWER",
@@ -697,7 +731,8 @@
     "lon": -92.53389,
     "source_note": "Clearance figure from public secondary source, not cross-checked against current USACE chart book or bridge owner permit. Current bridge opened 2019, replacing a 1960 structure.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-815-HASTINGS",
@@ -717,7 +752,8 @@
     "lon": -92.853,
     "source_note": "Clearance figure from public secondary source, not cross-checked against current USACE chart book or bridge owner permit. Current tied-arch bridge opened 2013, replacing the 1951 Hastings High Bridge (which had 63.8 ft).",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-839-WABASHA-ST",
@@ -737,7 +773,8 @@
     "lon": -93.09111,
     "source_note": "No current vertical clearance figure was found \u2014 only a historical requirement (60 ft) for an 1850s-era bridge design at this site, not the current bridge (opened 1998). Deliberately left blank rather than guessed.",
     "last_checked": "2026-08-09",
-    "notes": "NEEDS DATA \u2014 clearance unknown, do not assume a value."
+    "notes": "NEEDS DATA \u2014 clearance unknown, do not assume a value.",
+    "verification": null
   },
   {
     "id": "UMR-839-ROBERT-ST",
@@ -757,7 +794,8 @@
     "lon": -93.0874,
     "source_note": "Clearance figure from public secondary source, not cross-checked against current USACE chart book or bridge owner permit. Built 1926.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "cross-checked"
   },
   {
     "id": "UMR-840-LAFAYETTE",
@@ -777,7 +815,8 @@
     "lon": -93.07917,
     "source_note": "Clearance figure from public secondary source, not cross-checked against current USACE chart book or bridge owner permit. Current bridge opened 2015.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": "flagged"
   },
   {
     "id": "UMR-839-HIGH-BRIDGE",
@@ -797,7 +836,8 @@
     "lon": -93.10444,
     "source_note": "Clearance figure from public secondary source, not cross-checked against current USACE chart book or bridge owner permit. Opened 1987; the highest bridge in St. Paul.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": null
   },
   {
     "id": "UMR-840-UP-LIFT",
@@ -817,7 +857,8 @@
     "lon": -93.08833,
     "source_note": "Built 1913. Only the RAISED clearance (72 ft, span lifted) was found \u2014 the down/closed clearance, the figure that actually matters since it normally sits lowered except when a vessel needs to pass, was not found. Deliberately left blank rather than guessed.",
     "last_checked": "2026-08-09",
-    "notes": "Contact bridge/lock operator directly \u2014 hail for passage; the closed-span clearance itself is unknown."
+    "notes": "Contact bridge/lock operator directly \u2014 hail for passage; the closed-span clearance itself is unknown.",
+    "verification": null
   },
   {
     "id": "UMR-845-LAKE-ST-MARSHALL",
@@ -837,6 +878,7 @@
     "lon": -93.20229,
     "source_note": "Clearance figure from public secondary source, not cross-checked against current USACE chart book or bridge owner permit. Opened 1992; near the practical head of commercial navigation (Lock & Dam 1 / Ford Dam is just upstream) \u2014 the northernmost bridge in this dataset.",
     "last_checked": "2026-08-09",
-    "notes": "VERIFY before operational use."
+    "notes": "VERIFY before operational use.",
+    "verification": null
   }
 ]

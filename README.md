@@ -247,13 +247,29 @@ Add an entry to `docs/data/bridges.json` with this shape:
   "lon": -00.0,
   "source_note": "where this figure came from + verification status",
   "last_checked": "YYYY-MM-DD",
-  "notes": "any caveats"
+  "notes": "any caveats",
+  "verification": "chart | cross-checked | flagged | null"
 }
 ```
 
 For a bridge whose clearance you don't have a sourced figure for, set
 `reference_clearance_ft` to `null` rather than guessing — the app shows
 "Needs data" for those instead of a false number.
+
+`verification` drives the small badge shown next to a bridge's name (see
+the legend above the bridge list on the site itself) — it's a step up from
+the universal "verify before use" disclaimer, for the handful of bridges
+that have actually been checked against something:
+
+- `"chart"` — confirmed against an official USACE Supplemental Chart.
+  Highest confidence on the site.
+- `"cross-checked"` — confirmed or sourced against a company-provided
+  operational reference tool, not (yet) an official chart.
+- `"flagged"` — a real disagreement between sources was found and hasn't
+  been resolved. Extra caution warranted, not just the default disclaimer.
+- `null` (or omit it) — the default. An original secondary-source figure
+  that hasn't been independently checked against anything else. Most
+  bridges are still in this state.
 
 ## Adding a gauge
 

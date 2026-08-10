@@ -14,7 +14,7 @@
 // query param a returning visitor can keep seeing old bridge data after a
 // push. Keep in sync with the ?v= on style.css/app.js in index.html and
 // CACHE_NAME in sw.js.
-const DATA_VERSION = '20260811k';
+const DATA_VERSION = '20260811l';
 
 const REFRESH_MS = 5 * 60 * 1000; // auto-refresh every 5 minutes
 const GAUGE_CACHE_KEY = 'gaugeCache';
@@ -1014,6 +1014,37 @@ function stageLabel(stage) {
   return stage.stale ? `${val} (stale)` : val;
 }
 
+// Every bridge on this site is "verify before use" regardless -- this badge
+// distinguishes the ones that have actually gone through that verification
+// already from the ones that haven't, so the universal disclaimer doesn't
+// flatten a chart-confirmed figure and an untouched secondary-source guess
+// into looking equally (un)trustworthy. b.verification is null for most
+// bridges (nothing to show) -- see docs/data/bridges.json's schema comment
+// in README.md for what sets each tier.
+const VERIFICATION_BADGES = {
+  chart: {
+    label: 'Chart-verified',
+    cls: 'verif-chart',
+    title: 'Confirmed against an official USACE Supplemental Chart -- the highest-confidence figure on this site.',
+  },
+  'cross-checked': {
+    label: 'Cross-checked',
+    cls: 'verif-crosscheck',
+    title: 'Confirmed or sourced against a company-provided operational reference tool -- not yet checked against an official USACE chart.',
+  },
+  flagged: {
+    label: 'Discrepancy flagged',
+    cls: 'verif-flagged',
+    title: 'A real disagreement between sources was found here and hasn’t been resolved yet -- extra caution warranted.',
+  },
+};
+
+function verificationBadge(b) {
+  const info = VERIFICATION_BADGES[b.verification];
+  if (!info) return '';
+  return ` <span class="verif-badge ${info.cls}" title="${info.title}">${info.label}</span>`;
+}
+
 // A small ▲/▼/▬ badge next to a stage reading based on getTrend() -- '' if
 // there's no eligible history sample yet, so a first-time visitor just sees
 // nothing extra rather than a placeholder.
@@ -1091,7 +1122,7 @@ function renderCards(rows) {
         <strong>${b.name}</strong>
         <span class="status ${status.cls}">${status.label}</span>
       </div>
-      <div class="card-mile">${b.river} · Mile ${fmt(b.river_mile, 1)} · ${b.type}</div>
+      <div class="card-mile">${b.river} · Mile ${fmt(b.river_mile, 1)} · ${b.type}${verificationBadge(b)}</div>
       <div class="card-margin-label">${hasMargin ? `Margin for ${vessel.name} (${fmt(vessel.airDraftFt)}ft air draft)` : 'Margin for your vessel'}</div>
       <div class="card-clearance">${hasMargin ? `${fmt(margin)} ft` : '—'}</div>
       <div class="card-detail">
@@ -1126,7 +1157,7 @@ function renderTable(rows) {
     const { bridge: b, stage, clearance, margin, status } = r;
     const tr = document.createElement('tr');
     const cells = [
-      `<strong>${b.name}</strong>`,
+      `<strong>${b.name}</strong>${verificationBadge(b)}`,
       b.river,
       fmt(b.river_mile, 1),
       b.type,
@@ -1153,7 +1184,7 @@ function renderMarkers(rows) {
     const { bridge: b, stage, clearance, margin, status, vessel } = r;
     if (b.lat == null || b.lon == null) continue;
     const popup = `
-      <strong>${b.name}</strong><br/>
+      <strong>${b.name}</strong>${verificationBadge(b)}<br/>
       Mile ${fmt(b.river_mile, 1)} (${b.river})<br/>
       Ref: ${b.reference_clearance_ft != null ? fmt(b.reference_clearance_ft) + ' ft' : '—'}<br/>
       Stage: ${stageLabel(stage)}<br/>
