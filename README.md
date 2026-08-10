@@ -55,18 +55,23 @@ Mississippi River bridges, using live river stage from NOAA NWPS / USGS.
 
 Self-hosted on a VM behind Nginx Proxy Manager + Cloudflare — `server/` is a
 small Node/Express/SQLite process that serves both the static site (`docs/`,
-bind-mounted) and the sync API on one origin, so there's no CORS to think
-about. GitHub Pages is no longer the canonical deployment.
+bind-mounted) and the API on one origin, so there's no CORS to think about.
+GitHub Pages is no longer the canonical deployment.
 
-## Cross-device sync
+## Accounts
 
-`server/` also handles a vessel's air draft following a username across
-devices. **Not real authentication** — a username alone with no password
-means anyone who types the same username sees the same data. It's a
-placeholder for real accounts. Don't put anything in a username or vessel
-name you wouldn't want another visitor who guesses that username to see.
+Real email/password accounts (bcrypt-hashed, server-side sessions via an
+httpOnly cookie), not a placeholder username system — email verification
+and password reset both run over SMTP (MXroute). A vessel's saved air draft
+follows your account across devices automatically; no manual save/load
+step. Accounts whose email is in the server's `ADMIN_EMAILS` config get an
+admin role, which unlocks an in-browser editor for `bridges.json`/
+`gauges.json` (writes straight to the file on the VM — see "Admin: editing
+site data from the browser" in `server/README.md` for the git-sync caveat
+that comes with that).
 
-See `server/README.md` for what it does and how to deploy/update it.
+See `server/README.md` for the full endpoint list, required setup
+(`APP_BASE_URL`, SMTP), and deploy/update instructions.
 
 ### NWPS response shape — confirmed
 

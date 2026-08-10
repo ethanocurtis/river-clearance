@@ -17,12 +17,30 @@ services:
       # for an API-only deployment. See "Serving the whole site from this
       # container" in README.md.
       - STATIC_DIR=${STATIC_DIR:-}
+      - DATA_DIR=${DATA_DIR:-}
+      # Required for email verification/reset links to work -- your real
+      # public URL, no trailing slash.
+      - APP_BASE_URL=${APP_BASE_URL:-}
+      # Comma-separated emails that get the admin role automatically on signup.
+      - ADMIN_EMAILS=${ADMIN_EMAILS:-}
+      - SMTP_HOST=${SMTP_HOST:-}
+      - SMTP_PORT=${SMTP_PORT:-465}
+      - SMTP_SECURE=${SMTP_SECURE:-true}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASS=${SMTP_PASS:-}
+      - MAIL_FROM=${MAIL_FROM:-}
+      - COOKIE_SECURE=${COOKIE_SECURE:-true}
     volumes:
       - river-clearance-data:/data
       # Only used if STATIC_DIR=/site above -- bind-mounts the repo's docs/
-      # folder (read-only) so `git pull` on the host updates the live site
-      # immediately, no image rebuild needed for content-only changes.
-      - ../docs:/site:ro
+      # folder read-write, so `git pull` on the host updates the live site
+      # immediately (no image rebuild for content-only changes), AND so the
+      # admin data-editing API can write bridges.json/gauges.json back here.
+      # If you don't want the admin panel able to write to your git working
+      # directory, change this to :ro and leave DATA_DIR unset instead --
+      # admin editing just responds 501 (disabled) rather than breaking
+      # anything else.
+      - ../docs:/site
     # --- Nginx Proxy Manager users: uncomment both blocks below, replace
     # NPM_NETWORK_NAME with the actual network name (`docker network ls`),
     # and you can drop the `ports:` block above entirely -- NPM will reach

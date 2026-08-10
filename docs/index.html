@@ -7,7 +7,7 @@
   <title>Upper Mississippi Bridge Clearance</title>
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <link rel="stylesheet" href="./style.css?v=20260809p" />
+  <link rel="stylesheet" href="./style.css?v=20260810a" />
 </head>
 <body>
   <div id="alertBanner" class="alert-banner" hidden></div>
@@ -66,23 +66,57 @@
           <p id="vesselFormError" class="form-error" hidden></p>
         </form>
 
-        <div id="syncPanel" class="sync-panel" hidden>
-          <h3>Sync across devices</h3>
-          <p class="sync-note">
-            No password — just a shared username. Whoever knows the username
-            sees the same vessels. Not real account security; a placeholder
-            until this site has real hosting.
-          </p>
-          <div class="sync-controls">
-            <label for="syncUsername">Username</label>
-            <input id="syncUsername" type="text" placeholder="e.g. jro-towboat" autocomplete="username" />
+        <div id="accountPanel" class="account-panel">
+          <h3>Account</h3>
+
+          <div id="accountLoggedOut">
+            <div class="account-tabs">
+              <button id="showLoginTab" type="button" class="account-tab active">Log in</button>
+              <button id="showSignupTab" type="button" class="account-tab">Sign up</button>
+            </div>
+
+            <form id="loginForm" class="account-form" onsubmit="return false;">
+              <label for="loginEmail">Email</label>
+              <input id="loginEmail" type="email" autocomplete="email" />
+              <label for="loginPassword">Password</label>
+              <input id="loginPassword" type="password" autocomplete="current-password" />
+              <button id="loginSubmit" type="button">Log in</button>
+              <button id="showForgotPassword" type="button" class="link-button">Forgot password?</button>
+            </form>
+
+            <form id="signupForm" class="account-form" hidden onsubmit="return false;">
+              <label for="signupEmail">Email</label>
+              <input id="signupEmail" type="email" autocomplete="email" />
+              <label for="signupPassword">Password</label>
+              <input id="signupPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters" />
+              <button id="signupSubmit" type="button">Sign up</button>
+            </form>
+
+            <form id="forgotForm" class="account-form" hidden onsubmit="return false;">
+              <label for="forgotEmail">Email</label>
+              <input id="forgotEmail" type="email" autocomplete="email" />
+              <button id="forgotSubmit" type="button">Send reset link</button>
+              <button id="backToLogin" type="button" class="link-button">Back to log in</button>
+            </form>
+
+            <form id="resetForm" class="account-form" hidden onsubmit="return false;">
+              <p class="sync-note">Enter a new password for your account.</p>
+              <label for="resetPassword">New password</label>
+              <input id="resetPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters" />
+              <button id="resetSubmit" type="button">Set new password</button>
+            </form>
+
+            <p id="accountStatus" class="sync-status" hidden></p>
           </div>
-          <div class="sync-buttons">
-            <button id="syncSave" type="button">Save to cloud</button>
-            <button id="syncLoad" type="button">Load from cloud</button>
-            <button id="syncForget" type="button" class="sync-forget">Forget this username</button>
+
+          <div id="accountLoggedIn" hidden>
+            <p class="account-loggedin-line">
+              Logged in as <strong id="accountEmail"></strong>
+              <span id="accountAdminBadge" class="admin-badge" hidden>admin</span>
+            </p>
+            <p class="sync-note">Vessels here sync automatically to your account.</p>
+            <button id="logoutBtn" type="button">Log out</button>
           </div>
-          <p id="syncStatus" class="sync-status" hidden></p>
         </div>
       </div>
     </div>
@@ -128,6 +162,36 @@
     </div>
   </section>
 
+  <section id="adminSection" class="admin-section" hidden>
+    <button id="toggleAdmin" class="admin-toggle" type="button" aria-expanded="false" aria-controls="adminBody">
+      Admin: Edit Site Data ▸
+    </button>
+    <div id="adminBody" class="admin-body" hidden>
+      <p class="gauges-note">
+        Edits save directly to this server's copy of the data — live on the
+        site immediately. They do <strong>not</strong> get pushed to GitHub
+        automatically; run <code>git add -A &amp;&amp; git commit &amp;&amp; git push</code>
+        on the VM afterward if you want GitHub to reflect these changes too.
+      </p>
+
+      <div class="admin-editor">
+        <h3>Bridges (docs/data/bridges.json)</h3>
+        <button id="adminLoadBridges" type="button">Load current data</button>
+        <textarea id="adminBridgesText" class="admin-textarea" spellcheck="false"></textarea>
+        <button id="adminSaveBridges" type="button">Save changes</button>
+        <p id="adminBridgesStatus" class="sync-status" hidden></p>
+      </div>
+
+      <div class="admin-editor">
+        <h3>Gauges (docs/data/gauges.json)</h3>
+        <button id="adminLoadGauges" type="button">Load current data</button>
+        <textarea id="adminGaugesText" class="admin-textarea" spellcheck="false"></textarea>
+        <button id="adminSaveGauges" type="button">Save changes</button>
+        <p id="adminGaugesStatus" class="sync-status" hidden></p>
+      </div>
+    </div>
+  </section>
+
   <section class="map-section">
     <button id="toggleMap" class="map-toggle" type="button" aria-expanded="false" aria-controls="map">
       Map ▸
@@ -153,6 +217,6 @@
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="./app.js?v=20260809p"></script>
+  <script src="./app.js?v=20260810a"></script>
 </body>
 </html>

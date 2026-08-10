@@ -165,13 +165,13 @@ button:active { transform: translateY(1px); }
   margin: 4px 0 0;
 }
 
-.sync-panel {
+.account-panel {
   margin-top: 16px;
   padding-top: 12px;
   border-top: 1px dashed var(--border);
 }
 
-.sync-panel h3 {
+.account-panel h3 {
   margin: 0 0 6px;
   font-size: 14px;
   color: var(--text-dimmer);
@@ -184,21 +184,56 @@ button:active { transform: translateY(1px); }
   line-height: 1.5;
 }
 
-.sync-controls {
+.account-tabs {
   display: flex;
-  flex-direction: column;
   gap: 6px;
   margin-bottom: 10px;
 }
 
-.sync-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+.account-tab {
+  flex: 1;
+  background: transparent;
 }
 
-.sync-forget {
-  color: var(--marg-fg);
+.account-tab.active {
+  border-color: #4f7cf0;
+  background: #16223f;
+  color: var(--text);
+}
+
+.account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.account-form label { margin-top: 4px; }
+
+.link-button {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: var(--text-dimmer);
+  text-decoration: underline;
+  min-height: auto;
+  padding: 6px 0;
+}
+
+.account-loggedin-line {
+  margin: 0 0 4px;
+  font-size: 14px;
+}
+
+.admin-badge {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--need-bg);
+  color: var(--need-fg);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  vertical-align: middle;
 }
 
 .sync-status {
@@ -355,6 +390,51 @@ tr:hover { background: var(--bg-raised); }
 .gauge-name { flex: 1; color: var(--text); }
 .gauge-id { color: var(--text-dim); font-variant: small-caps; }
 .gauge-stage { color: var(--text-dimmer); font-weight: 600; white-space: nowrap; }
+
+/* ---------- Admin ---------- */
+
+.admin-section { border-top: 1px solid var(--border); }
+
+.admin-toggle {
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  min-height: var(--touch);
+  background: var(--need-bg);
+  color: var(--need-fg);
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* No explicit `display` here on purpose -- same [hidden]-override lesson as
+   .gauges-body/.controls-body above. */
+.admin-body { padding: 4px 16px 16px; }
+
+.admin-editor { margin-top: 14px; }
+
+.admin-editor h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--text-dimmer);
+}
+
+.admin-textarea {
+  display: block;
+  width: 100%;
+  height: 260px;
+  margin: 8px 0;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #243258;
+  background: #0a1224;
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
 
 /* ---------- Map ---------- */
 

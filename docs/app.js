@@ -14,7 +14,7 @@
 // query param a returning visitor can keep seeing old bridge data after a
 // push. Keep in sync with the ?v= on style.css/app.js in index.html and
 // CACHE_NAME in sw.js.
-const DATA_VERSION = '20260809p';
+const DATA_VERSION = '20260810a';
 
 const REFRESH_MS = 5 * 60 * 1000; // auto-refresh every 5 minutes
 const GAUGE_CACHE_KEY = 'gaugeCache';
@@ -22,21 +22,19 @@ const BRIDGES_CACHE_KEY = 'bridgesCache';
 const GAUGES_LIST_CACHE_KEY = 'gaugesListCache';
 const VESSELS_KEY = 'vessels';
 const ACTIVE_VESSEL_KEY = 'activeVesselIndex';
-const SYNC_USERNAME_KEY = 'syncUsername';
 
-// Empty string hides the whole "Sync across devices" panel — no broken
-// buttons if there's nowhere for them to talk to. '/api' (relative, the
-// current setting) assumes this same server serves both the site and the
-// API (see /server, STATIC_DIR) — same-origin, no CORS needed. If the
-// frontend ever runs somewhere separate from the API again, change this to
-// an absolute URL instead, e.g. 'https://your-api-domain.example/api'.
-const SYNC_API_BASE = '/api';
+// Relative path: assumes this same server serves both the site and the API
+// (see /server, STATIC_DIR) — same-origin, cookies just work. If the
+// frontend ever runs somewhere separate from the API, change this to an
+// absolute URL instead, e.g. 'https://your-api-domain.example/api'.
+const API_BASE = '/api';
 
 const state = {
   bridges: [],
   gauges: [],
   vessels: [],
   activeVesselIndex: 0,
+  user: null, // { id, email, role } once logged in, else null
   map: null,
   markers: [],
   gaugeMarkers: [],
@@ -145,6 +143,7 @@ function renderVesselList() {
       saveActiveVesselIndex(i);
       renderVesselList();
       render();
+      syncVesselsToServer();
     };
 
     const delBtn = document.createElement('button');
@@ -160,6 +159,7 @@ function renderVesselList() {
       saveActiveVesselIndex(state.activeVesselIndex);
       renderVesselList();
       render();
+      syncVesselsToServer();
     };
 
     row.appendChild(selectBtn);
@@ -182,6 +182,7 @@ function addVesselFromForm() {
   showFormError('');
   renderVesselList();
   render();
+  syncVesselsToServer();
 }
 
 function showFormError(msg) {
@@ -192,106 +193,246 @@ function showFormError(msg) {
 }
 
 // ---------------------------------------------------------------------------
-// Sync across devices (username only, no password — see /server/README.md)
+// Account (real email/password, sessions via httpOnly cookie)
 // ---------------------------------------------------------------------------
 
-function initSyncPanel() {
-  if (!SYNC_API_BASE) return; // panel stays hidden, nothing else to wire up
-  $('syncPanel').hidden = false;
-  const saved = localStorage.getItem(SYNC_USERNAME_KEY);
-  if (saved) $('syncUsername').value = saved;
-
-  $('syncSave').onclick = syncSave;
-  $('syncLoad').onclick = syncLoad;
-  $('syncForget').onclick = syncForget;
-}
-
-function showSyncStatus(msg, isError = false) {
-  const el = $('syncStatus');
+function showStatus(elId, msg, isError = false) {
+  const el = $(elId);
   el.textContent = msg;
   el.hidden = !msg;
   el.classList.toggle('sync-status-error', isError);
 }
 
-function currentSyncUsername() {
-  const raw = $('syncUsername').value.trim().toLowerCase();
-  if (!/^[a-z0-9_-]{3,32}$/.test(raw)) {
-    showSyncStatus('Username must be 3-32 characters: lowercase letters, numbers, - or _.', true);
-    return null;
-  }
-  return raw;
+// Thin fetch wrapper: always sends the session cookie, always expects JSON,
+// throws a plain Error with the server's message on any non-2xx response so
+// callers can just try/catch and show e.message.
+async function apiFetch(path, options = {}) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    credentials: 'include',
+    headers: options.body ? { 'Content-Type': 'application/json' } : undefined,
+    ...options,
+  });
+  let body = null;
+  try { body = await res.json(); } catch { /* empty/non-JSON body is fine for e.g. 204s */ }
+  if (!res.ok) throw new Error(body?.error || `HTTP ${res.status}`);
+  return body;
 }
 
-async function syncSave() {
-  const username = currentSyncUsername();
-  if (!username) return;
-  showSyncStatus('Saving…');
+function showAccountForm(which) {
+  for (const id of ['loginForm', 'signupForm', 'forgotForm', 'resetForm']) $(id).hidden = id !== which;
+  $('showLoginTab').classList.toggle('active', which === 'loginForm');
+  $('showSignupTab').classList.toggle('active', which === 'signupForm');
+  showStatus('accountStatus', '');
+}
+
+function applyLoggedInUI(user) {
+  state.user = user;
+  $('accountLoggedOut').hidden = true;
+  $('accountLoggedIn').hidden = false;
+  $('accountEmail').textContent = user.email;
+  $('accountAdminBadge').hidden = user.role !== 'admin';
+  if (user.role === 'admin') initAdminPanel();
+}
+
+function applyLoggedOutUI() {
+  state.user = null;
+  $('accountLoggedOut').hidden = false;
+  $('accountLoggedIn').hidden = true;
+  $('adminSection').hidden = true;
+}
+
+async function checkAuthStatus() {
   try {
-    const res = await fetch(`${SYNC_API_BASE}/sync/${encodeURIComponent(username)}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ vessels: state.vessels, activeVesselIndex: state.activeVesselIndex }),
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.error || `HTTP ${res.status}`);
-    }
-    localStorage.setItem(SYNC_USERNAME_KEY, username);
-    showSyncStatus(`Saved as "${username}". Load this same username on another device to get these vessels there.`);
+    const body = await apiFetch('/auth/me');
+    applyLoggedInUI(body.user);
+    await loadVesselsFromServer();
+  } catch {
+    applyLoggedOutUI(); // 401 (not logged in) is the expected/common case here, not an error to surface
+  }
+}
+
+async function doSignup() {
+  const email = $('signupEmail').value.trim();
+  const password = $('signupPassword').value;
+  showStatus('accountStatus', 'Creating account…');
+  try {
+    const body = await apiFetch('/auth/signup', { method: 'POST', body: JSON.stringify({ email, password }) });
+    showStatus('accountStatus', body.message);
   } catch (e) {
-    showSyncStatus(`Couldn't save: ${e.message}`, true);
+    showStatus('accountStatus', e.message, true);
   }
 }
 
-async function syncLoad() {
-  const username = currentSyncUsername();
-  if (!username) return;
-  showSyncStatus('Loading…');
+async function doLogin() {
+  const email = $('loginEmail').value.trim();
+  const password = $('loginPassword').value;
+  showStatus('accountStatus', 'Logging in…');
   try {
-    const res = await fetch(`${SYNC_API_BASE}/sync/${encodeURIComponent(username)}`);
-    if (res.status === 404) {
-      showSyncStatus(`No saved data for "${username}" yet — use Save to cloud here first.`);
-      return;
+    const body = await apiFetch('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+    applyLoggedInUI(body.user);
+    await loadVesselsFromServer();
+  } catch (e) {
+    showStatus('accountStatus', e.message, true);
+  }
+}
+
+async function doLogout() {
+  try { await apiFetch('/auth/logout', { method: 'POST' }); } catch { /* logging out anyway */ }
+  applyLoggedOutUI();
+  showAccountForm('loginForm');
+}
+
+async function doForgotPassword() {
+  const email = $('forgotEmail').value.trim();
+  showStatus('accountStatus', 'Sending…');
+  try {
+    const body = await apiFetch('/auth/request-password-reset', { method: 'POST', body: JSON.stringify({ email }) });
+    showStatus('accountStatus', body.message);
+  } catch (e) {
+    showStatus('accountStatus', e.message, true);
+  }
+}
+
+async function doResetPassword(token) {
+  const newPassword = $('resetPassword').value;
+  showStatus('accountStatus', 'Updating…');
+  try {
+    const body = await apiFetch('/auth/reset-password', { method: 'POST', body: JSON.stringify({ token, newPassword }) });
+    showStatus('accountStatus', body.message);
+    showAccountForm('loginForm');
+  } catch (e) {
+    showStatus('accountStatus', e.message, true);
+  }
+}
+
+function wireAccountPanel() {
+  $('showLoginTab').onclick = () => showAccountForm('loginForm');
+  $('showSignupTab').onclick = () => showAccountForm('signupForm');
+  $('showForgotPassword').onclick = () => showAccountForm('forgotForm');
+  $('backToLogin').onclick = () => showAccountForm('loginForm');
+  $('signupSubmit').onclick = doSignup;
+  $('loginSubmit').onclick = doLogin;
+  $('forgotSubmit').onclick = doForgotPassword;
+  $('logoutBtn').onclick = doLogout;
+}
+
+// Handles the query-param states an emailed link can land you on
+// (?verified=1, ?verify_error=1, ?reset_token=...), then cleans the URL so
+// refreshing doesn't re-trigger the same message.
+function handleAuthRedirectParams() {
+  const params = new URLSearchParams(location.search);
+  if (params.has('verified')) {
+    showAccountForm('loginForm');
+    showStatus('accountStatus', "Email verified — you're logged in.");
+  } else if (params.has('verify_error')) {
+    showAccountForm('loginForm');
+    showStatus('accountStatus', 'That verification link is invalid or expired.', true);
+  } else if (params.has('reset_token')) {
+    const token = params.get('reset_token');
+    showAccountForm('resetForm');
+    $('resetSubmit').onclick = () => doResetPassword(token);
+  } else {
+    return;
+  }
+  history.replaceState({}, '', location.pathname);
+}
+
+// ---------------------------------------------------------------------------
+// Vessel sync (automatic, tied to the logged-in account — no manual buttons)
+// ---------------------------------------------------------------------------
+
+async function loadVesselsFromServer() {
+  try {
+    const body = await apiFetch('/vessels');
+    const vessels = body?.data?.vessels;
+    if (Array.isArray(vessels) && vessels.length) {
+      state.vessels = vessels;
+      state.activeVesselIndex = Number.isInteger(body.data.activeVesselIndex) ? body.data.activeVesselIndex : 0;
+      if (state.activeVesselIndex >= state.vessels.length) state.activeVesselIndex = 0;
+      saveVessels(state.vessels);
+      saveActiveVesselIndex(state.activeVesselIndex);
+    } else {
+      // Nothing saved server-side yet for this account -- push what's local
+      // (e.g. the default vessel) up as a starting point.
+      await syncVesselsToServer();
     }
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.error || `HTTP ${res.status}`);
-    }
-    const record = await res.json();
-    const vessels = record?.data?.vessels;
-    if (!Array.isArray(vessels) || vessels.length === 0) {
-      showSyncStatus(`No vessels found for "${username}".`, true);
-      return;
-    }
-    state.vessels = vessels;
-    state.activeVesselIndex = Number.isInteger(record.data.activeVesselIndex) ? record.data.activeVesselIndex : 0;
-    if (state.activeVesselIndex >= state.vessels.length) state.activeVesselIndex = 0;
-    saveVessels(state.vessels);
-    saveActiveVesselIndex(state.activeVesselIndex);
-    localStorage.setItem(SYNC_USERNAME_KEY, username);
     renderVesselList();
     await render();
-    showSyncStatus(`Loaded ${vessels.length} vessel${vessels.length > 1 ? 's' : ''} for "${username}".`);
   } catch (e) {
-    showSyncStatus(`Couldn't load: ${e.message}`, true);
+    console.warn('Could not load vessels from account', e);
   }
 }
 
-async function syncForget() {
-  const username = currentSyncUsername();
-  if (!username) return;
-  showSyncStatus('Removing…');
+async function syncVesselsToServer() {
+  if (!state.user) return;
   try {
-    const res = await fetch(`${SYNC_API_BASE}/sync/${encodeURIComponent(username)}`, { method: 'DELETE' });
-    if (!res.ok && res.status !== 404) {
-      const body = await res.json().catch(() => ({}));
+    await apiFetch('/vessels', {
+      method: 'PUT',
+      body: JSON.stringify({ vessels: state.vessels, activeVesselIndex: state.activeVesselIndex }),
+    });
+  } catch (e) {
+    console.warn('Could not sync vessels to account', e);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Admin: edit bridges.json / gauges.json from the browser (no SSH/git needed)
+// ---------------------------------------------------------------------------
+
+function initAdminPanel() {
+  $('adminSection').hidden = false;
+}
+
+async function adminLoadData(kind, textareaId, statusId) {
+  showStatus(statusId, 'Loading…');
+  try {
+    const res = await fetch(`${API_BASE}/admin/data/${kind}`, { credentials: 'include' });
+    const text = await res.text();
+    if (!res.ok) {
+      const body = JSON.parse(text || '{}');
       throw new Error(body.error || `HTTP ${res.status}`);
     }
-    if (localStorage.getItem(SYNC_USERNAME_KEY) === username) localStorage.removeItem(SYNC_USERNAME_KEY);
-    showSyncStatus(`"${username}" removed from the cloud. Your local vessels here are untouched.`);
+    $(textareaId).value = text;
+    showStatus(statusId, 'Loaded current data.');
   } catch (e) {
-    showSyncStatus(`Couldn't remove: ${e.message}`, true);
+    showStatus(statusId, `Couldn't load: ${e.message}`, true);
   }
+}
+
+async function adminSaveData(kind, textareaId, statusId) {
+  let parsed;
+  try {
+    parsed = JSON.parse($(textareaId).value);
+  } catch (e) {
+    showStatus(statusId, `Not valid JSON: ${e.message}`, true);
+    return;
+  }
+  showStatus(statusId, 'Saving…');
+  try {
+    const body = await apiFetch(`/admin/data/${kind}`, { method: 'PUT', body: JSON.stringify(parsed) });
+    showStatus(statusId, `Saved ${body.count} entries — live on the site now.`);
+    // Reflect the change immediately without a full reload.
+    if (kind === 'bridges') state.bridges = await loadBridges();
+    else state.gauges = await loadGauges();
+    await render();
+  } catch (e) {
+    showStatus(statusId, `Couldn't save: ${e.message}`, true);
+  }
+}
+
+function wireAdminPanel() {
+  $('toggleAdmin').onclick = () => {
+    const body = $('adminBody');
+    const btn = $('toggleAdmin');
+    const collapsed = body.hasAttribute('hidden');
+    if (collapsed) body.removeAttribute('hidden'); else body.setAttribute('hidden', '');
+    btn.setAttribute('aria-expanded', String(collapsed));
+    btn.textContent = collapsed ? 'Admin: Edit Site Data ▾' : 'Admin: Edit Site Data ▸';
+  };
+  $('adminLoadBridges').onclick = () => adminLoadData('bridges', 'adminBridgesText', 'adminBridgesStatus');
+  $('adminSaveBridges').onclick = () => adminSaveData('bridges', 'adminBridgesText', 'adminBridgesStatus');
+  $('adminLoadGauges').onclick = () => adminLoadData('gauges', 'adminGaugesText', 'adminGaugesStatus');
+  $('adminSaveGauges').onclick = () => adminSaveData('gauges', 'adminGaugesText', 'adminGaugesStatus');
 }
 
 // ---------------------------------------------------------------------------
@@ -794,10 +935,14 @@ async function init() {
   state.activeVesselIndex = loadActiveVesselIndex();
   ensureDefaultVessel();
   renderVesselList();
-  initSyncPanel();
 
   wireControls();
+  wireAccountPanel();
+  wireAdminPanel();
   registerServiceWorker();
+
+  handleAuthRedirectParams(); // ?verified=1 / ?verify_error=1 / ?reset_token=...
+  await checkAuthStatus(); // may load vessels from the account, overriding the local defaults above
 
   [state.bridges, state.gauges] = await Promise.all([loadBridges(), loadGauges()]);
   await render();
