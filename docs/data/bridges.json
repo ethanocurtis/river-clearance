@@ -370,14 +370,14 @@
     "type": "fixed",
     "reference_clearance_ft": 66.36,
     "reference_datum": "vertical clearance above zero on the Mel Price Upper Gage (RM 201.1), per USACE Supplemental Chart 123A",
-    "controlling_gauge_id": "alni2",
-    "gauge_source": "NWPS",
-    "usgs_site_no": "05587498",
+    "controlling_gauge_id": null,
+    "gauge_source": null,
+    "usgs_site_no": null,
     "lat": 38.88222,
     "lon": -90.17889,
-    "source_note": "USACE Upper Mississippi River Supplemental Chart No. 123A (2020), Mississippi Valley Division. Reference gage: Mel Price Upper Gage, RM 201.1. Elevation, low steel: 485.36' -- elevation, gage zero: 395.48' -- vertical clearance above zero on gage = 66.36 ft. Officially named Clark Highway Bridge on the chart (Coast Guard Light List No. 16240); just upstream of Melvin Price Lock & Dam, opened 1994. Corrects an earlier secondary-source figure of 65 ft (understated by 1.36 ft) and river mile (was 201, chart gives 202.40).",
+    "source_note": "USACE Upper Mississippi River Supplemental Chart No. 123A (2020), Mississippi Valley Division. Reference gage: Mel Price Upper Gage, RM 201.1. Elevation, low steel: 485.36' -- elevation, gage zero: 395.48' -- vertical clearance above zero on gage = 66.36 ft. Officially named Clark Highway Bridge on the chart (Coast Guard Light List No. 16240); just upstream of Melvin Price Lock & Dam, opened 1994. Corrects an earlier secondary-source figure of 65 ft (understated by 1.36 ft) and river mile (was 201, chart gives 202.40). CORRECTION (2026-08-11): the previously-assigned alni2 gauge was confirmed live (site showed 6.38 ft, matching USACE RiverGages' Mel Price L&D LOWER gauge, not the UPPER gauge this reference figure requires per the chart's own 'Mel Price Upper Gage, RM 201.1' citation -- Upper read 23.30 ft at the same moment, a ~17 ft difference). Live gauge disabled rather than compute against the wrong pool. A candidate NWPS id (aloi2) was found but couldn't be confirmed as the correct Upper gauge and wasn't used.",
     "last_checked": "2026-08-11",
-    "notes": "Confirmed against the official USACE chart."
+    "notes": "Confirmed against the official USACE chart, but no live gauge is currently assigned -- see source_note. Shows \"Stage unavailable\" until the correct upper-pool gauge is identified."
   },
   {
     "id": "UMR-325-BAYVIEW",

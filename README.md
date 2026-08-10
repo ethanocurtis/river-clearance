@@ -126,6 +126,19 @@ site is still sourced the way this whole section describes — search-result
 summaries, not the official chart book — and still needs the same
 verify-before-use treatment.
 
+Verifying Clark Bridge's chart figure against its live gauge also caught a
+real bug, not just a data error: `controlling_gauge_id: alni2` turned out to
+be the **lower/tailwater** gauge at Melvin Price Lock & Dam, not the
+**upper** gauge the chart's reference figure requires — confirmed by
+comparing the live site's stage reading against both of USACE's separate
+Upper/Lower RiverGages pages, which differed by ~17 ft at the same moment.
+Clark Bridge's live gauge is disabled (`null`) until the correct upper-pool
+NWPS/USGS id is identified — it now correctly shows "Stage unavailable"
+rather than a clearance number computed against the wrong pool. Worth
+keeping in mind for any other bridge sitting right at a lock: the
+upper/lower distinction matters and secondary sources don't always get it
+right (this one didn't either — see `alni2`'s own gauges.json entry).
+
 A few entries got extra scrutiny and are called out explicitly in their
 `source_note`:
 

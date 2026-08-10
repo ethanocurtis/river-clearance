@@ -1,34 +1,290 @@
 [
-  { "id": "stpm5", "name": "St. Paul, MN", "lat": 44.944, "lon": -93.0827, "river_mile": null, "source": "NWPS", "usgs_site_no": null },
-  { "id": "sspm5", "name": "South St. Paul, MN \u2014 Pool 2", "lat": 44.893, "lon": -93.0247, "river_mile": null, "source": "NWPS", "usgs_site_no": null },
-  { "id": "redm5", "name": "Red Wing, MN", "lat": 44.5636, "lon": -92.533, "river_mile": null, "source": "NWPS", "usgs_site_no": null },
-  { "id": "rdwm5", "name": "Red Wing, MN \u2014 below Lock & Dam 3", "lat": 44.558, "lon": -92.528, "river_mile": null, "source": "NWPS", "usgs_site_no": null },
-  { "id": "lkcm5", "name": "Lake City, MN", "lat": 44.45, "lon": -92.265, "river_mile": null, "source": "NWPS", "usgs_site_no": null },
-  { "id": "wnam5", "name": "Winona, MN \u2014 Pool 6", "lat": 44.043, "lon": -91.66, "river_mile": 728.0, "source": "NWPS", "usgs_site_no": null },
-  { "id": "widm5", "name": "Winona, MN \u2014 below Lock & Dam 5A", "lat": 44.05, "lon": -91.69, "river_mile": null, "source": "NWPS", "usgs_site_no": null },
-  { "id": "mscm5", "name": "Minnesota City, MN \u2014 below Lock & Dam 5", "lat": 44.13, "lon": -91.75, "river_mile": null, "source": "NWPS", "usgs_site_no": null },
-  { "id": "trew3", "name": "Trempealeau, WI \u2014 below Lock & Dam 6", "lat": 44.008, "lon": -91.446, "river_mile": null, "source": "NWPS", "usgs_site_no": null },
-  { "id": "lcrm5", "name": "La Crescent, MN \u2014 below Lock & Dam 7", "lat": 43.83, "lon": -91.29, "river_mile": null, "source": "NWPS", "usgs_site_no": null },
-  { "id": "lacw3", "name": "La Crosse, WI \u2014 Pool 8", "lat": 43.8118, "lon": -91.2396, "river_mile": 698.0, "source": "NWPS", "usgs_site_no": "05383500" },
-  { "id": "genw3", "name": "Genoa, WI \u2014 below Lock & Dam 8", "lat": 43.5775, "lon": -91.226, "river_mile": 679.2, "source": "NWPS", "usgs_site_no": null },
-  { "id": "gtti4", "name": "Guttenberg, IA \u2014 below Lock & Dam 10", "lat": 42.79, "lon": -91.1, "river_mile": 615.1, "source": "NWPS", "usgs_site_no": null },
-  { "id": "dldi4", "name": "Dubuque, IA \u2014 Lock & Dam 11", "lat": 42.501, "lon": -90.665, "river_mile": 583.0, "source": "NWPS", "usgs_site_no": "05414700" },
-  { "id": "dbqi4", "name": "Dubuque, IA \u2014 Railroad Bridge", "lat": 42.5008, "lon": -90.6636, "river_mile": 583.0, "source": "NWPS", "usgs_site_no": "05414700" },
-  { "id": "rcki2", "name": "Rock Island, IL", "lat": 41.5145, "lon": -90.5719, "river_mile": 482.9, "source": "NWPS", "usgs_site_no": "413104090334301" },
-  { "id": "musi4", "name": "Muscatine, IA \u2014 Lock & Dam 16", "lat": 41.423, "lon": -91.043, "river_mile": 457.2, "source": "NWPS", "usgs_site_no": null },
-  { "id": "nboi2", "name": "New Boston, IL \u2014 Lock & Dam 17", "lat": 41.178, "lon": -90.995, "river_mile": 437.1, "source": "NWPS", "usgs_site_no": null },
-  { "id": "brli4", "name": "Burlington, IA", "lat": 40.8073, "lon": -91.1129, "river_mile": null, "source": "NWPS", "usgs_site_no": null },
-  { "id": "eoki4", "name": "Keokuk, IA", "lat": 40.3986, "lon": -91.3865, "river_mile": 364.3, "source": "NWPS", "usgs_site_no": null },
-  { "id": "uini2", "name": "Quincy, IL", "lat": 39.9356, "lon": -91.4098, "river_mile": null, "source": "NWPS", "usgs_site_no": null },
-  { "id": "qldi2", "name": "Quincy, IL \u2014 Lock & Dam 21", "lat": 39.93, "lon": -91.41, "river_mile": 324.9, "source": "NWPS", "usgs_site_no": null },
-  { "id": "canm7", "name": "Canton, MO \u2014 Lock & Dam 20", "lat": 40.125, "lon": -91.534, "river_mile": 343.2, "source": "NWPS", "usgs_site_no": null },
-  { "id": "hnnm7", "name": "Hannibal, MO", "lat": 39.7085, "lon": -91.3577, "river_mile": null, "source": "NWPS", "usgs_site_no": null },
-  { "id": "lusm7", "name": "Louisiana, MO", "lat": 39.45, "lon": -91.051, "river_mile": null, "source": "NWPS", "usgs_site_no": null },
-  { "id": "clkm7", "name": "Clarksville, MO \u2014 Lock & Dam 24", "lat": 39.37, "lon": -90.913, "river_mile": 273.4, "source": "NWPS", "usgs_site_no": null },
-  { "id": "cagm7", "name": "Winfield, MO \u2014 Lock & Dam 25", "lat": 39.008, "lon": -90.746, "river_mile": 241.4, "source": "NWPS", "usgs_site_no": null },
-  { "id": "alni2", "name": "Alton, IL \u2014 Melvin Price Lock and Dam (L&D 26)", "lat": 38.873, "lon": -90.16, "river_mile": 200.8, "source": "NWPS", "usgs_site_no": "05587498" },
-  { "id": "eadm7", "name": "St. Louis, MO", "lat": 38.6272, "lon": -90.1889, "river_mile": 180.0, "source": "NWPS", "usgs_site_no": "07010000" },
-  { "id": "hstm5", "name": "Hastings, MN \u2014 below Lock & Dam 2", "lat": 44.7469, "lon": -92.852, "river_mile": 815.2, "source": "NWPS", "usgs_site_no": "05331580" },
-  { "id": "mcgi4", "name": "McGregor, IA (across from Prairie du Chien, WI)", "lat": 43.0197, "lon": -91.1801, "river_mile": 634.0, "source": "NWPS", "usgs_site_no": "05389500" },
-  { "id": "leci4", "name": "Le Claire, IA \u2014 near Lock & Dam 14", "lat": 41.595, "lon": -90.354, "river_mile": 493.3, "source": "NWPS", "usgs_site_no": null }
+  {
+    "id": "stpm5",
+    "name": "St. Paul, MN",
+    "lat": 44.944,
+    "lon": -93.0827,
+    "river_mile": null,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "sspm5",
+    "name": "South St. Paul, MN \u2014 Pool 2",
+    "lat": 44.893,
+    "lon": -93.0247,
+    "river_mile": null,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "redm5",
+    "name": "Red Wing, MN",
+    "lat": 44.5636,
+    "lon": -92.533,
+    "river_mile": null,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "rdwm5",
+    "name": "Red Wing, MN \u2014 below Lock & Dam 3",
+    "lat": 44.558,
+    "lon": -92.528,
+    "river_mile": null,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "lkcm5",
+    "name": "Lake City, MN",
+    "lat": 44.45,
+    "lon": -92.265,
+    "river_mile": null,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "wnam5",
+    "name": "Winona, MN \u2014 Pool 6",
+    "lat": 44.043,
+    "lon": -91.66,
+    "river_mile": 728.0,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "widm5",
+    "name": "Winona, MN \u2014 below Lock & Dam 5A",
+    "lat": 44.05,
+    "lon": -91.69,
+    "river_mile": null,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "mscm5",
+    "name": "Minnesota City, MN \u2014 below Lock & Dam 5",
+    "lat": 44.13,
+    "lon": -91.75,
+    "river_mile": null,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "trew3",
+    "name": "Trempealeau, WI \u2014 below Lock & Dam 6",
+    "lat": 44.008,
+    "lon": -91.446,
+    "river_mile": null,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "lcrm5",
+    "name": "La Crescent, MN \u2014 below Lock & Dam 7",
+    "lat": 43.83,
+    "lon": -91.29,
+    "river_mile": null,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "lacw3",
+    "name": "La Crosse, WI \u2014 Pool 8",
+    "lat": 43.8118,
+    "lon": -91.2396,
+    "river_mile": 698.0,
+    "source": "NWPS",
+    "usgs_site_no": "05383500"
+  },
+  {
+    "id": "genw3",
+    "name": "Genoa, WI \u2014 below Lock & Dam 8",
+    "lat": 43.5775,
+    "lon": -91.226,
+    "river_mile": 679.2,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "gtti4",
+    "name": "Guttenberg, IA \u2014 below Lock & Dam 10",
+    "lat": 42.79,
+    "lon": -91.1,
+    "river_mile": 615.1,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "dldi4",
+    "name": "Dubuque, IA \u2014 Lock & Dam 11",
+    "lat": 42.501,
+    "lon": -90.665,
+    "river_mile": 583.0,
+    "source": "NWPS",
+    "usgs_site_no": "05414700"
+  },
+  {
+    "id": "dbqi4",
+    "name": "Dubuque, IA \u2014 Railroad Bridge",
+    "lat": 42.5008,
+    "lon": -90.6636,
+    "river_mile": 583.0,
+    "source": "NWPS",
+    "usgs_site_no": "05414700"
+  },
+  {
+    "id": "rcki2",
+    "name": "Rock Island, IL",
+    "lat": 41.5145,
+    "lon": -90.5719,
+    "river_mile": 482.9,
+    "source": "NWPS",
+    "usgs_site_no": "413104090334301"
+  },
+  {
+    "id": "musi4",
+    "name": "Muscatine, IA \u2014 Lock & Dam 16",
+    "lat": 41.423,
+    "lon": -91.043,
+    "river_mile": 457.2,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "nboi2",
+    "name": "New Boston, IL \u2014 Lock & Dam 17",
+    "lat": 41.178,
+    "lon": -90.995,
+    "river_mile": 437.1,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "brli4",
+    "name": "Burlington, IA",
+    "lat": 40.8073,
+    "lon": -91.1129,
+    "river_mile": null,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "eoki4",
+    "name": "Keokuk, IA",
+    "lat": 40.3986,
+    "lon": -91.3865,
+    "river_mile": 364.3,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "uini2",
+    "name": "Quincy, IL",
+    "lat": 39.9356,
+    "lon": -91.4098,
+    "river_mile": null,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "qldi2",
+    "name": "Quincy, IL \u2014 Lock & Dam 21",
+    "lat": 39.93,
+    "lon": -91.41,
+    "river_mile": 324.9,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "canm7",
+    "name": "Canton, MO \u2014 Lock & Dam 20",
+    "lat": 40.125,
+    "lon": -91.534,
+    "river_mile": 343.2,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "hnnm7",
+    "name": "Hannibal, MO",
+    "lat": 39.7085,
+    "lon": -91.3577,
+    "river_mile": null,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "lusm7",
+    "name": "Louisiana, MO",
+    "lat": 39.45,
+    "lon": -91.051,
+    "river_mile": null,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "clkm7",
+    "name": "Clarksville, MO \u2014 Lock & Dam 24",
+    "lat": 39.37,
+    "lon": -90.913,
+    "river_mile": 273.4,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "cagm7",
+    "name": "Winfield, MO \u2014 Lock & Dam 25",
+    "lat": 39.008,
+    "lon": -90.746,
+    "river_mile": 241.4,
+    "source": "NWPS",
+    "usgs_site_no": null
+  },
+  {
+    "id": "alni2",
+    "name": "Alton, IL \u2014 Melvin Price Lock and Dam (L&D 26), LOWER/tailwater gauge",
+    "lat": 38.873,
+    "lon": -90.16,
+    "river_mile": 200.5,
+    "source": "NWPS",
+    "usgs_site_no": "05587498"
+  },
+  {
+    "id": "eadm7",
+    "name": "St. Louis, MO",
+    "lat": 38.6272,
+    "lon": -90.1889,
+    "river_mile": 180.0,
+    "source": "NWPS",
+    "usgs_site_no": "07010000"
+  },
+  {
+    "id": "hstm5",
+    "name": "Hastings, MN \u2014 below Lock & Dam 2",
+    "lat": 44.7469,
+    "lon": -92.852,
+    "river_mile": 815.2,
+    "source": "NWPS",
+    "usgs_site_no": "05331580"
+  },
+  {
+    "id": "mcgi4",
+    "name": "McGregor, IA (across from Prairie du Chien, WI)",
+    "lat": 43.0197,
+    "lon": -91.1801,
+    "river_mile": 634.0,
+    "source": "NWPS",
+    "usgs_site_no": "05389500"
+  },
+  {
+    "id": "leci4",
+    "name": "Le Claire, IA \u2014 near Lock & Dam 14",
+    "lat": 41.595,
+    "lon": -90.354,
+    "river_mile": 493.3,
+    "source": "NWPS",
+    "usgs_site_no": null
+  }
 ]
